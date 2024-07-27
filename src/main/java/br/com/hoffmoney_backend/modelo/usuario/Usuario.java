@@ -28,3 +28,4 @@ public class Usuario extends EntidadeAuditavel {
     @Column(length = 100)
     private String senha;
 }
+ 

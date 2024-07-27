@@ -52,4 +52,4 @@ public class UsuarioService {
         usuario.setVersao(usuario.getVersao() + 1);
         repository.save(usuario);
     }
-}
+} 

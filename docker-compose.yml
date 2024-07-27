@@ -11,3 +11,4 @@ services:
        - 5435:5432
      volumes:
        - ./postgres-data:/bitnami/postgresql/data
+ 
