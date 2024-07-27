@@ -14,6 +14,11 @@ public class UsuarioService {
 
     @Transactional
     public Usuario save(Usuario usuario) {
+        if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
+            usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
+            usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
+            throw new IllegalArgumentException("Todos os campos são obrigatórios.");
+        }
         usuario.setHabilitado(Boolean.TRUE);
         usuario.setVersao(1L);
         usuario.setDataCriacao(LocalDate.now());
