@@ -20,6 +20,10 @@ public class DespesaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    public List<Despesa> listarDespesas() {
+        return despesaRepository.findAll();
+    }
+
     @Transactional
     public void criarDespesa(DespesaRequest despesaRequest) {
         Despesa despesa = new Despesa();
@@ -52,16 +56,16 @@ public class DespesaService {
 
             // Incrementa a data com base no período
             switch (periodo) {
-                case DIARIO:
+                case daily:
                     calendar.add(Calendar.DAY_OF_MONTH, 1);
                     break;
-                case SEMANAL:
+                case weekly:
                     calendar.add(Calendar.WEEK_OF_YEAR, 1);
                     break;
-                case MENSAL:
+                case monthly:
                     calendar.add(Calendar.MONTH, 1);
                     break;
-                case ANUAL:
+                case yearly:
                     calendar.add(Calendar.YEAR, 1);
                     break;
             }
@@ -71,7 +75,7 @@ public class DespesaService {
     }
 
     public enum Periodo {
-        DIARIO, SEMANAL, MENSAL, ANUAL
+        daily, weekly, monthly, yearly
     }
 
     // Método para atualizar despesas recorrentes
@@ -81,6 +85,7 @@ public class DespesaService {
 
         for (Despesa despesa : despesasRecorrentes) {
             despesa.setValor(novosDados.getValor());
+            despesa.setNome(novosDados.getNome());
             despesa.setDataDeCobranca(novosDados.getDataDeCobranca());
             // Atualize outros campos conforme necessário
         }

@@ -1,6 +1,5 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import org.hibernate.annotations.SQLRestriction;
@@ -22,7 +21,7 @@ import lombok.*;
 @NoArgsConstructor
 public class Despesa extends EntidadeAuditavel {
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(nullable = false)
     private Usuario usuario;
 
@@ -34,10 +33,10 @@ public class Despesa extends EntidadeAuditavel {
     private String nome;
 
     @Column
-    private BigDecimal valor;
+    private Double valor;
 
     @Column
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date dataDeCobranca;
 
     @Column
