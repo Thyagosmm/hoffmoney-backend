@@ -1,15 +1,13 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import br.com.hoffmoney_backend.api.despesa.DespesaRequest;
-import br.com.hoffmoney_backend.modelo.usuario.Usuario;
-import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Calendar;
+
+import java.util.Optional;
 
 @Service
 public class DespesaService {
@@ -17,40 +15,48 @@ public class DespesaService {
     @Autowired
     private DespesaRepository despesaRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
+    @Transactional
     public List<Despesa> listarDespesas() {
         return despesaRepository.findAll();
     }
 
     @Transactional
-    public void criarDespesa(DespesaRequest despesaRequest) {
-        Despesa despesa = new Despesa();
+    public Optional<Despesa> findById(Long id) {
+        return despesaRepository.findById(id);
+    }
 
-        Usuario usuario = usuarioRepository.findById(despesaRequest.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    @Transactional
+    public Despesa save(Despesa despesa) {
+        return despesaRepository.save(despesa);
+    }
 
-        despesa.setUsuario(usuario);
-        despesa.setNome(despesaRequest.getNome());
-        despesa.setValor(despesaRequest.getValor());
-        despesa.setDataDeCobranca(despesaRequest.getDataDeCobranca());
-        // Defina outros campos conforme necessário
+    @Transactional
+    public void deleteById(Long id) {
+        despesaRepository.deleteById(id);
+    }
 
-        despesaRepository.save(despesa);
+    public Despesa update(Long id, Despesa despesaDetails) {
+        return despesaRepository.findById(id).map(despesa -> {
+            despesa.setDescricao(despesaDetails.getDescricao());
+            despesa.setValor(despesaDetails.getValor());
+            despesa.setData(despesaDetails.getData());
+            despesa.setCategoria(despesaDetails.getCategoria());
+            despesa.setRecorrente(despesaDetails.isRecorrente());
+            despesa.setUsuario(despesaDetails.getUsuario());
+            return despesaRepository.save(despesa);
+        }).orElseThrow(() -> new RuntimeException("Despesa not found with id " + id));
     }
 
     public void cadastrarDespesaRepetida(Despesa despesaOriginal, int quantidade, Periodo periodo) {
         List<Despesa> despesas = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(despesaOriginal.getDataDeCobranca());
 
         for (int i = 0; i < quantidade; i++) {
             Despesa novaDespesa = new Despesa();
             novaDespesa.setUsuario(despesaOriginal.getUsuario());
-            novaDespesa.setNome(despesaOriginal.getNome());
+            novaDespesa.setDescricao(despesaOriginal.getDescricao());
             novaDespesa.setValor(despesaOriginal.getValor());
-            novaDespesa.setDataDeCobranca(calendar.getTime());
+            novaDespesa.setData(despesaOriginal.getData());
 
             despesas.add(novaDespesa);
 
@@ -76,27 +82,5 @@ public class DespesaService {
 
     public enum Periodo {
         daily, weekly, monthly, yearly
-    }
-
-    // Método para atualizar despesas recorrentes
-    @Transactional
-    public void atualizarDespesasRecorrentes(Despesa despesaOriginal, Despesa novosDados) {
-        List<Despesa> despesasRecorrentes = despesaRepository.findByUsuario(despesaOriginal.getUsuario());
-
-        for (Despesa despesa : despesasRecorrentes) {
-            despesa.setValor(novosDados.getValor());
-            despesa.setNome(novosDados.getNome());
-            despesa.setDataDeCobranca(novosDados.getDataDeCobranca());
-            // Atualize outros campos conforme necessário
-        }
-
-        despesaRepository.saveAll(despesasRecorrentes);
-    }
-
-    // Método para deletar despesas recorrentes
-    @Transactional
-    public void deletarDespesasRecorrentes(Despesa despesaOriginal) {
-        List<Despesa> despesasRecorrentes = despesaRepository.findByUsuario(despesaOriginal.getUsuario());
-        despesaRepository.deleteAll(despesasRecorrentes);
     }
 }

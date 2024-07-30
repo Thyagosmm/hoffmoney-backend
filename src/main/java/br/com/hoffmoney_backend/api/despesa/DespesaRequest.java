@@ -14,11 +14,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DespesaRequest {
-    private Usuario usuarioId;
-    private Long id;
+    private Long usuarioId;
     private String nome;
     private Double valor;
-    private Date dataDeCobranca;
+    private LocalDate dataDeCobranca;
     private Boolean paga;
     private Boolean fixa;
 
@@ -31,7 +30,5 @@ public class DespesaRequest {
                 .paga(paga)
                 .fixa(fixa)
                 .build();
-
     }
-
 }

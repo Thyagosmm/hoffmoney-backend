@@ -2,6 +2,7 @@ package br.com.hoffmoney_backend.api.despesa;
 
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
 import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
+import br.com.hoffmoney_backend.modelo.usuario.UsuarioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ public class DespesaController {
     @Autowired
     private DespesaService despesaService;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     @GetMapping
     public ResponseEntity<List<Despesa>> listarDespesas() {
         List<Despesa> despesas = despesaService.listarDespesas();
@@ -34,9 +38,12 @@ public class DespesaController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> criarDespesa(@RequestBody DespesaRequest despesaRequest) {
-        despesaService.criarDespesa(despesaRequest);
-        System.out.println("Despesa criada: " + despesaRequest);
+    public ResponseEntity<?> criarDespesa(@RequestBody Despesa despesaRequest) {
+        DespesaRequest novaDespesa = despesaRequest.builder();
+        despesaRequest.setUsuario(usuarioService.obterPorID(usuarioId.getUsuarioId()));
+        despesaRequest.setNome(novaDespesa.getNome());
+        despesaRequest.setValor(novaDespesa.getValor());
+        despesaRequest.setDataDeCobranca(novaDespesa.getDataDeCobranca());
         return ResponseEntity.ok().build();
     }
 

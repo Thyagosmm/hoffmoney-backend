@@ -1,15 +1,13 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
-import java.util.Date;
-
-import org.hibernate.annotations.SQLRestriction;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Despesa")
@@ -21,28 +19,25 @@ import lombok.*;
 @NoArgsConstructor
 public class Despesa extends EntidadeAuditavel {
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private Usuario usuario;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 100)
+    private String descricao;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valor;
+
+    private LocalDate data;
+
     @Column(length = 50)
-    private String nome;
+    private String categoria;
 
-    @Column
-    private Double valor;
+    @Column(nullable = false)
+    private boolean recorrente;
 
-    @Column
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-    private Date dataDeCobranca;
-
-    @Column
-    private Boolean paga;
-
-    @Column
-    private Boolean fixa;
-
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 }
