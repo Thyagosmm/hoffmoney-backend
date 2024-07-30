@@ -1,19 +1,16 @@
 package br.com.hoffmoney_backend.api.despesa;
 
+import br.com.hoffmoney_backend.modelo.despesa.DespesaService.Periodo;
+
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
+import br.com.hoffmoney_backend.modelo.despesa.DespesaRepository;
 import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
-import br.com.hoffmoney_backend.modelo.usuario.UsuarioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -24,35 +21,32 @@ public class DespesaController {
     private DespesaService despesaService;
 
     @Autowired
-    private UsuarioService usuarioService;
+    private DespesaRepository despesaRepository;
 
+   
     @GetMapping
     public ResponseEntity<List<Despesa>> listarDespesas() {
-        List<Despesa> despesas = despesaService.listarDespesas();
-        if (despesas.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        System.out.println("Despesa: " + despesas);
+        List<Despesa> despesas = despesaService.listarTodasDespesas();
+        System.out.println("Despesas no controlador: " + despesas); // Log para verificar o retorno do serviço
 
-        return ResponseEntity.ok(despesas);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(despesas);
     }
 
     @PostMapping
-    public ResponseEntity<?> criarDespesa(@RequestBody Despesa despesaRequest) {
-        DespesaRequest novaDespesa = despesaRequest.builder();
-        despesaRequest.setUsuario(usuarioService.obterPorID(usuarioId.getUsuarioId()));
-        despesaRequest.setNome(novaDespesa.getNome());
-        despesaRequest.setValor(novaDespesa.getValor());
-        despesaRequest.setDataDeCobranca(novaDespesa.getDataDeCobranca());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Despesa> criarDespesa(@RequestBody Despesa despesa) {
+        Despesa novaDespesa = despesaRepository.save(despesa);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaDespesa);
     }
 
     @PostMapping("/repetir")
-    public ResponseEntity<Void> repetirDespesa(@RequestBody Despesa despesa, @RequestParam int quantidade,
-            @RequestParam DespesaService.Periodo periodo) {
-        despesaService.cadastrarDespesaRepetida(despesa, quantidade, periodo);
-        System.out.println("Despesa repetida: " + despesa + ", Quantidade: " + quantidade + ", Periodo: " + periodo);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> cadastrarDespesasRepetidas(
+            @RequestBody Despesa despesaOriginal) {
+        // Converter a String para o enum Periodo
+        Periodo periodoEnum = Periodo.valueOf(despesaOriginal.getPeriodo().toLowerCase());
+
+        // Chamar o método com os parâmetros corretos
+        despesaService.cadastrarDespesaRepetida(despesaOriginal, despesaOriginal.getVezes(), periodoEnum);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/atualizar")
@@ -60,13 +54,13 @@ public class DespesaController {
             @RequestBody Despesa novosDados) {
         despesaService.atualizarDespesasRecorrentes(despesaOriginal, novosDados);
         System.out.println("Despesa original: " + despesaOriginal + ", Novos dados: " + novosDados);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/deletar")
     public ResponseEntity<Void> deletarDespesasRecorrentes(@RequestBody Despesa despesaOriginal) {
         despesaService.deletarDespesasRecorrentes(despesaOriginal);
         System.out.println("Despesa deletada: " + despesaOriginal);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

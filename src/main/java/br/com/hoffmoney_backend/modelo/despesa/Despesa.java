@@ -1,12 +1,10 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
-import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -23,21 +21,116 @@ public class Despesa extends EntidadeAuditavel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long usuarioId;
+
     @Column(length = 100)
+    private String nome;
+
+    @Column(length = 255)
     private String descricao;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal valor;
-
-    private LocalDate data;
+    @Column
+    private Double valor;
 
     @Column(length = 50)
     private String categoria;
 
-    @Column(nullable = false)
-    private boolean recorrente;
+    private Boolean recorrente;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    private Integer vezes;
+
+    @Column(length = 20)
+    private String periodo;
+
+    private LocalDate dataDeCobranca;
+
+    private Boolean paga;
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public Double getValor() {
+        return valor;
+    }
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public void setValor(Double valor) {
+        this.valor = valor;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    public Boolean getRecorrente() {
+        return recorrente;
+    }
+
+    public void setRecorrente(Boolean recorrente) {
+        this.recorrente = recorrente;
+    }
+
+    public Integer getVezes() {
+        return vezes;
+    }
+
+    public void setVezes(Integer vezes) {
+        this.vezes = vezes;
+    }
+
+    public String getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(String periodo) {
+        this.periodo = periodo;
+    }
+
+    public LocalDate getDataDeCobranca() {
+        return dataDeCobranca;
+    }
+
+    public void setDataDeCobranca(LocalDate dataDeCobranca) {
+        this.dataDeCobranca = dataDeCobranca;
+    }
+
+    public Boolean getPaga() {
+        return paga;
+    }
+
+    public void setPaga(Boolean paga) {
+        this.paga = paga;
+    }
 }
