@@ -1,5 +1,4 @@
 {
-  "json.schemas": [
-    
-  ]
+  "json.schemas": [],
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

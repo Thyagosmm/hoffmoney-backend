@@ -12,9 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/despesas")
+@CrossOrigin(origins = "http://localhost:3000")
 public class DespesaController {
 
     @Autowired
@@ -23,13 +25,19 @@ public class DespesaController {
     @Autowired
     private DespesaRepository despesaRepository;
 
-   
     @GetMapping
-    public ResponseEntity<List<Despesa>> listarDespesas() {
-        List<Despesa> despesas = despesaService.listarTodasDespesas();
-        System.out.println("Despesas no controlador: " + despesas); // Log para verificar o retorno do serviço
+    public List<Despesa> listarTodasDespesas() {
+        return despesaService.listarTodasDespesas();
+    }
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(despesas);
+    @GetMapping("/{id}")
+    public ResponseEntity<Despesa> consultarDespesaPorId(@PathVariable Long id) {
+        Optional<Despesa> despesa = despesaService.consultarDespesaPorId(id);
+        if (despesa.isPresent()) {
+            return ResponseEntity.ok(despesa.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @PostMapping

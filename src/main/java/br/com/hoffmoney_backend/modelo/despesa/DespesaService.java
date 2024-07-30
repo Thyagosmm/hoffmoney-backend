@@ -3,7 +3,10 @@ package br.com.hoffmoney_backend.modelo.despesa;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -13,38 +16,33 @@ public class DespesaService {
     @Autowired
     private DespesaRepository despesaRepository;
 
+    @Transactional
     public List<Despesa> listarTodasDespesas() {
-        List<Despesa> despesas = despesaRepository.findAll();
-        System.out.println("Despesas no serviço: " + despesas); // Log para verificar o retorno do repositório
-        return despesas;
+        return despesaRepository.findAll();
     }
 
+    @Transactional
+    public Optional<Despesa> consultarDespesaPorId(Long id) {
+        return despesaRepository.findById(id);
+    }
+
+    @Transactional
     public Despesa salvarDespesa(Despesa despesa) {
         return despesaRepository.save(despesa);
     }
 
+    @Transactional
     public void deletarDespesa(Long id) {
         despesaRepository.deleteById(id);
-    }
-
-    public Despesa update(Long id, Despesa despesaDetails) {
-        return despesaRepository.findById(id).map(despesa -> {
-            despesa.setDescricao(despesaDetails.getDescricao());
-            despesa.setValor(despesaDetails.getValor());
-            despesa.setDataDeCobranca(despesaDetails.getDataDeCobranca());
-            despesa.setCategoria(despesaDetails.getCategoria());
-            despesa.setRecorrente(despesaDetails.getRecorrente());
-            despesa.setUsuarioId(despesaDetails.getUsuarioId());
-            return despesaRepository.save(despesa);
-        }).orElseThrow(() -> new RuntimeException("Despesa not found with id " + id));
     }
 
     public enum Periodo {
         diario, semanal, mensal, anual
     }
 
+    @Transactional
     public void cadastrarDespesaRepetida(Despesa despesa, int quantidade, Periodo periodo) {
-        List<Despesa> despesas = new ArrayList<>();
+        List<Despesa> despesas = new ArrayList<Despesa>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(java.sql.Date.valueOf(despesa.getDataDeCobranca()));
 
@@ -85,6 +83,7 @@ public class DespesaService {
         despesaRepository.saveAll(despesas);
     }
 
+    @Transactional
     public void atualizarDespesasRecorrentes(Despesa despesaOriginal, Despesa novosDados) {
         List<Despesa> despesas = despesaRepository.findByUsuarioIdAndNome(despesaOriginal.getUsuarioId(),
                 despesaOriginal.getNome());
@@ -102,12 +101,14 @@ public class DespesaService {
         despesaRepository.saveAll(despesas);
     }
 
+    @Transactional
     public void deletarDespesasRecorrentes(Despesa despesaOriginal) {
         List<Despesa> despesas = despesaRepository.findByUsuarioIdAndNome(despesaOriginal.getUsuarioId(),
                 despesaOriginal.getNome());
         despesaRepository.deleteAll(despesas);
     }
 
+    @Transactional
     public List<Despesa> listarDespesasPorUsuarioId(Long usuarioId) {
         return despesaRepository.findByUsuarioId(usuarioId);
     }
