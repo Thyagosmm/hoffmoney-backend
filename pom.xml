@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.com</groupId>
     <artifactId>hoffmoney-backend</artifactId>
@@ -100,6 +100,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>                <!-- Verifique se está usando uma versão que suporte a opção -parameters -->
+                <configuration>
+                    <source>1.8</source>                    <!-- Ou a versão do Java que você está usando -->
+                    <target>1.8</target>                    <!-- Ou a versão do Java que você está usando -->
+                    <compilerArgument>-parameters</compilerArgument>
+                </configuration>
             </plugin>
         </plugins>
     </build>

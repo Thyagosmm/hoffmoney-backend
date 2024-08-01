@@ -1,7 +1,7 @@
 package br.com.hoffmoney_backend.api.despesa;
 
 import br.com.hoffmoney_backend.modelo.despesa.DespesaService.Periodo;
-
+import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
 import br.com.hoffmoney_backend.modelo.despesa.DespesaRepository;
 import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
@@ -22,12 +22,15 @@ public class DespesaController {
     @Autowired
     private DespesaService despesaService;
 
-    @Autowired
-    private DespesaRepository despesaRepository;
-
     @GetMapping
     public List<Despesa> listarTodasDespesas() {
         return despesaService.listarTodasDespesas();
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Despesa>> listarDespesasPorUsuarioId(@PathVariable Long usuarioId) {
+        List<Despesa> despesas = despesaService.listarDespesasPorUsuarioId(usuarioId);
+        return ResponseEntity.ok(despesas);
     }
 
     @GetMapping("/{id}")
@@ -42,22 +45,21 @@ public class DespesaController {
 
     @PostMapping
     public ResponseEntity<Despesa> criarDespesa(@RequestBody Despesa despesa) {
-        Despesa novaDespesa = despesaRepository.save(despesa);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaDespesa);
+        if (Boolean.TRUE.equals(despesa.getRecorrente())) {
+            // Converter a String para o enum Periodo
+            Periodo periodoEnum = Periodo.valueOf(despesa.getPeriodo().toLowerCase());
+
+            // Chamar o método com os parâmetros corretos
+            despesaService.cadastrarDespesaRepetida(despesa, periodoEnum);
+        } else {
+
+            despesaService.salvarDespesa(despesa);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(despesa);
+
     }
 
-    @PostMapping("/repetir")
-    public ResponseEntity<Void> cadastrarDespesasRepetidas(
-            @RequestBody Despesa despesaOriginal) {
-        // Converter a String para o enum Periodo
-        Periodo periodoEnum = Periodo.valueOf(despesaOriginal.getPeriodo().toLowerCase());
-
-        // Chamar o método com os parâmetros corretos
-        despesaService.cadastrarDespesaRepetida(despesaOriginal, despesaOriginal.getVezes(), periodoEnum);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PutMapping("/atualizar")
+    @PutMapping
     public ResponseEntity<Void> atualizarDespesasRecorrentes(@RequestBody Despesa despesaOriginal,
             @RequestBody Despesa novosDados) {
         despesaService.atualizarDespesasRecorrentes(despesaOriginal, novosDados);
@@ -65,8 +67,9 @@ public class DespesaController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/deletar")
-    public ResponseEntity<Void> deletarDespesasRecorrentes(@RequestBody Despesa despesaOriginal) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarDespesasRecorrentes(@RequestBody Despesa despesaOriginal,
+            @PathVariable Long id) {
         despesaService.deletarDespesasRecorrentes(despesaOriginal);
         System.out.println("Despesa deletada: " + despesaOriginal);
         return ResponseEntity.status(HttpStatus.CREATED).build();

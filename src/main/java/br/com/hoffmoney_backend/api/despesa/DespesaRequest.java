@@ -3,6 +3,7 @@ package br.com.hoffmoney_backend.api.despesa;
 import java.time.LocalDate;
 
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
+import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DespesaRequest {
-    private Long usuarioId;
+    private Usuario usuario;
     private String nome;
     private Double valor;
     private String categoria;
@@ -25,7 +26,7 @@ public class DespesaRequest {
 
     public Despesa build() {
         return Despesa.builder()
-                .usuarioId(usuarioId)
+                .usuario(usuario)
                 .nome(nome)
                 .valor(valor)
                 .categoria(categoria)
