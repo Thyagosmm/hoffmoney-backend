@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDate;
 
 @Entity
@@ -48,6 +50,7 @@ public class Despesa extends EntidadeAuditavel {
     private String periodo;
 
     @Column
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataDeCobranca;
 
     @Column

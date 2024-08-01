@@ -52,4 +52,13 @@ public class UsuarioService {
         usuario.setVersao(usuario.getVersao() + 1);
         repository.save(usuario);
     }
+
+    public Usuario login(String email, String senha) {
+        Usuario usuario = repository.findByEmail(email);
+        System.out.println(usuario);
+        if (usuario != null && usuario.getSenha().equals(senha)) {
+            return usuario;
+        }
+        throw new IllegalArgumentException("Email ou senha inválidos");
+    }
 } 
