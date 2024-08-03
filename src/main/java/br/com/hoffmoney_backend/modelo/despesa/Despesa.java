@@ -43,9 +43,6 @@ public class Despesa extends EntidadeAuditavel {
     @Column
     private Boolean recorrente;
 
-    @Column
-    private Integer vezes;
-
     @Column(length = 20)
     private String periodo;
 

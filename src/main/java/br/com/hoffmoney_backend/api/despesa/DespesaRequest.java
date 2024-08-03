@@ -19,7 +19,6 @@ public class DespesaRequest {
     private Double valor;
     private String categoria;
     private Boolean recorrente;
-    private Integer vezes;
     private String periodo;
     private LocalDate dataDeCobranca;
     private Boolean paga;
@@ -31,7 +30,6 @@ public class DespesaRequest {
                 .valor(valor)
                 .categoria(categoria)
                 .recorrente(recorrente)
-                .vezes(vezes)
                 .periodo(periodo)
                 .dataDeCobranca(dataDeCobranca)
                 .paga(paga)
