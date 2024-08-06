@@ -64,4 +64,28 @@ public class UsuarioController {
         usuarioService.delete(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            Usuario usuario = usuarioService.login(loginRequest.getEmail(), loginRequest.getSenha());
+            
+            if (usuario == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não encontrado");
+            }
+    
+            if (!usuario.getSenha().equals(loginRequest.getSenha())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha incorreta");
+            }
+    
+            Usuario logado = new Usuario();
+            logado.setId(usuario.getId());
+            logado.setNome(usuario.getNome());
+            logado.setEmail(usuario.getEmail());
+    
+            return ResponseEntity.ok(logado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 }
