@@ -15,12 +15,15 @@ public class UsuarioRequest {
     private String nome;
     private String email;
     private String senha;
+    private Double saldo;
 
     public Usuario build() {
         return Usuario.builder()
-            .nome(nome)
-            .email(email)
-            .senha(senha)
-            .build();
+                .nome(nome)
+                .email(email)
+                .senha(senha)
+                .saldo(saldo)
+
+                .build();
     }
 }

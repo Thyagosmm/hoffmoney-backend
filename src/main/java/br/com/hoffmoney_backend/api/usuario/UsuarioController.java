@@ -12,12 +12,12 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/api/usuario")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
-        
+
     @Operation(summary = "Serviço responsável por salvar um usuário no sistema.")
     @PostMapping
     public ResponseEntity<?> save(@RequestBody Usuario request) {
@@ -79,18 +79,33 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-     @Operation(summary = "Incrementar saldo da carteira do usuário.")
-    @PostMapping("/{id}/incrementar")
-    public ResponseEntity<?> incrementarSaldo(@PathVariable Long id, @RequestBody double valor) {
+
+    @Operation(summary = "Incrementar saldo da carteira do usuário.")
+    @PutMapping("/incrementar")
+    public ResponseEntity<?> incrementarSaldo(@RequestBody SaldoRequest saldoRequest) {
+
+        Long id = saldoRequest.getId();
+        Double valor = saldoRequest.getValor();
+
         usuarioService.incrementarSaldo(id, valor);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Decrementar saldo da carteira do usuário.")
-    @PostMapping("/{id}/decrementar")
-    public ResponseEntity<?>  decrementarSaldo(@PathVariable Long id, @RequestBody double valor) {
+    @PutMapping("/decrementar")
+    public ResponseEntity<?> decrementarSaldo(@RequestBody SaldoRequest saldoRequest) {
+
+        Long id = saldoRequest.getId();
+        Double valor = saldoRequest.getValor();
+
         usuarioService.decrementarSaldo(id, valor);
         return ResponseEntity.ok().build();
 
+    }
+
+    @GetMapping("/saldo")
+    public ResponseEntity<?> consultarSaldo(@RequestParam Long id) {
+        Double saldo = usuarioService.obterPorID(id).getSaldo();
+        return ResponseEntity.ok(saldo);
     }
 }
