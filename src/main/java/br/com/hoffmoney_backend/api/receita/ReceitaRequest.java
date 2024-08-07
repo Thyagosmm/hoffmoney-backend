@@ -26,7 +26,7 @@ public class ReceitaRequest {
 
     private String categoria;
     
-    // private boolean recorrente;
+    private Boolean recorrente;
 
     private String descricao;
 
@@ -37,7 +37,7 @@ public class ReceitaRequest {
                 .dataRecebimento(dataRecebimento)
                 .valor(valor)
                 .categoria(categoria)
-                // .recorrente(recorrente)
+                .recorrente(recorrente)
                 .descricao(descricao)
                 .build();
     }

@@ -3,11 +3,9 @@ package br.com.hoffmoney_backend.modelo.receita;
 import java.time.LocalDate;
 // import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import jakarta.transaction.Transactional;
 
 @Service
@@ -44,7 +42,7 @@ public class ReceitaService {
         receita.setCategoria(receitaAlterada.getCategoria());
         receita.setDataRecebimento(receitaAlterada.getDataRecebimento());
         receita.setDescricao(receitaAlterada.getDescricao());
-        // receita.setRecorrente(receitaAlterada.isRecorrente());
+        receita.setRecorrente(receitaAlterada.getRecorrente());
 
         receita.setVersao(receita.getVersao() + 1);
         repository.save(receita);
