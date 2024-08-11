@@ -1,6 +1,7 @@
 package br.com.hoffmoney_backend.modelo.usuario;
 
 import org.hibernate.annotations.SQLRestriction;
+
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,4 +28,9 @@ public class Usuario extends EntidadeAuditavel {
 
     @Column(length = 100)
     private String senha;
+
+      @Column(length = 50)
+    @Builder.Default
+    private Double saldo = 0.0;
+
 }

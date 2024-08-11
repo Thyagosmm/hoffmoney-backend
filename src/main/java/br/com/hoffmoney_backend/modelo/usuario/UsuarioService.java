@@ -4,17 +4,20 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioService {
-
-    @Autowired
-    private UsuarioRepository repository;
+    
+        @Autowired
+        private UsuarioRepository usuarioRepository;
+      
 
     @Transactional
     public Usuario save(Usuario usuario) {
-        if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
+            if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
             usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
             usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
             throw new IllegalArgumentException("Todos os campos são obrigatórios.");
@@ -22,17 +25,17 @@ public class UsuarioService {
         usuario.setHabilitado(Boolean.TRUE);
         usuario.setVersao(1L);
         usuario.setDataCriacao(LocalDate.now());
-        return repository.save(usuario);
+        return usuarioRepository.save(usuario);
     }
 
     @Transactional
     public List<Usuario> listarTodos() {
-        return repository.findAll();
+        return usuarioRepository.findAll();
     }
 
     @Transactional
     public Usuario obterPorID(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
     @Transactional
@@ -42,7 +45,7 @@ public class UsuarioService {
         usuario.setEmail(usuarioAlterado.getEmail());
         usuario.setSenha(usuarioAlterado.getSenha());
         usuario.setVersao(usuario.getVersao() + 1);
-        repository.save(usuario);
+        usuarioRepository.save(usuario);
     }
 
     @Transactional
@@ -50,6 +53,39 @@ public class UsuarioService {
         Usuario usuario = obterPorID(id);
         usuario.setHabilitado(Boolean.FALSE);
         usuario.setVersao(usuario.getVersao() + 1);
-        repository.save(usuario);
+        usuarioRepository.save(usuario);
     }
+
+    public Usuario login(String email, String senha) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+        System.out.println(usuario);
+        if (usuario != null && usuario.getSenha().equals(senha)) {
+            return usuario;
+        }
+        throw new IllegalArgumentException("Email ou senha inválidos");
+    }
+     @Transactional
+    public void decrementarSaldo(Long usuarioId, Double valor) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+
+        Double novoSaldo = usuario.getSaldo() - valor;
+        if (novoSaldo < 0) {
+            throw new IllegalArgumentException("Saldo insuficiente");
+        }
+
+        usuario.setSaldo(novoSaldo);
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void incrementarSaldo(Long usuarioId, Double valor) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+
+        Double novoSaldo = usuario.getSaldo() + valor;
+        usuario.setSaldo(novoSaldo);
+        usuarioRepository.save(usuario);
+    }
+   
 } 
