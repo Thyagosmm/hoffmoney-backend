@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/usuario")
@@ -20,13 +21,9 @@ public class UsuarioController {
 
     @Operation(summary = "Serviço responsável por salvar um usuário no sistema.")
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody Usuario request) {
-        if (request.getNome() == null || request.getNome().isEmpty() ||
-                request.getEmail() == null || request.getEmail().isEmpty() ||
-                request.getSenha() == null || request.getSenha().isEmpty()) {
-            return new ResponseEntity<>("Todos os campos são obrigatórios.", HttpStatus.BAD_REQUEST);
-        }
-        Usuario usuario = usuarioService.save(request);
+    public ResponseEntity<?> save(@RequestBody @Valid UsuarioRequest request) {
+       
+        Usuario usuario = usuarioService.save(request.build());
         return new ResponseEntity<>(usuario, HttpStatus.CREATED);
     }
 
