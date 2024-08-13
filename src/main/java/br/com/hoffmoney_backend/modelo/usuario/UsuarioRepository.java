@@ -13,6 +13,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Usuario findByEmail(String email);
 
+    boolean existsByEmail(String email);
+
+
 
     @Modifying
     @Query("UPDATE Usuario u SET u.saldo = u.saldo - :valor WHERE u.id = :usuarioId")

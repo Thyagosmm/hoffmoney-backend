@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
+import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -19,11 +20,17 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+        private UsuarioRepository usuarioRepository;
+
+
     @Operation(summary = "Serviço responsável por salvar um usuário no sistema.")
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody @Valid UsuarioRequest request) {
-       
-        Usuario usuario = usuarioService.save(request.build());
+    public ResponseEntity<?> save(@RequestBody @Valid UsuarioRequest usuarioRequest) {
+        if (usuarioRepository.existsByEmail(usuarioRequest.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Este Email já está cadastrado.");
+        }
+        Usuario usuario = usuarioService.save(usuarioRequest.build());
         return new ResponseEntity<>(usuario, HttpStatus.CREATED);
     }
 
