@@ -85,4 +85,19 @@ public class DespesaService {
     public List<Despesa> listarDespesasPorUsuarioId(Long usuarioId) {
         return despesaRepository.findByUsuarioId(usuarioId);
     }
+
+    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, String categoria, String nome) {
+        List<Despesa> listaDespesas = despesaRepository.findAll();
+        
+        if (dataDeCobranca != null && valor == null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorDataDeCobranca(dataDeCobranca);
+        } else if (dataDeCobranca == null && valor != null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorValor(valor);
+        } else if (dataDeCobranca == null && valor == null && (categoria != null && !"".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorCategoria(categoria);
+        } else if (dataDeCobranca == null && valor == null && (categoria == null || "".equals(categoria)) && (nome != null && !"".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorNome(nome);
+        }
+        return listaDespesas;
+    }
 }
