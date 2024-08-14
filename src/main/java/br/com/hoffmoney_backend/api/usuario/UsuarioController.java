@@ -28,7 +28,7 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<?> save(@RequestBody @Valid UsuarioRequest usuarioRequest) {
         if (usuarioRepository.existsByEmail(usuarioRequest.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Este Email já está cadastrado.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Este e-mail já está cadastrado.");
         }
         Usuario usuario = usuarioService.save(usuarioRequest.build());
         return new ResponseEntity<>(usuario, HttpStatus.CREATED);
