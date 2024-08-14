@@ -1,31 +1,3 @@
-<<<<<<< HEAD
-package br.com.hoffmoney_backend.api.usuario;
-
-import br.com.hoffmoney_backend.modelo.usuario.Usuario;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UsuarioRequest {
-
-    private String nome;
-    private String email;
-    private String senha;
-
-    public Usuario build() {
-        return Usuario.builder()
-            .nome(nome)
-            .email(email)
-            .senha(senha)
-            .build();
-    }
-}
-=======
 package br.com.hoffmoney_backend.api.usuario;
 
 import org.hibernate.validator.constraints.Length;
@@ -68,4 +40,3 @@ public class UsuarioRequest {
                 .build();
     }
 }
->>>>>>> 9ec99eb3483f0917d7ae03f09dd63caf99b48036

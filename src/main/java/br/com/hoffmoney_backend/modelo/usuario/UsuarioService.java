@@ -1,68 +1,3 @@
-<<<<<<< HEAD
-package br.com.hoffmoney_backend.modelo.usuario;
-
-import java.time.LocalDate;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
-
-@Service
-public class UsuarioService {
-
-    @Autowired
-    private UsuarioRepository repository;
-
-    @Transactional
-    public Usuario save(Usuario usuario) {
-        if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
-            usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
-            usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
-            throw new IllegalArgumentException("Todos os campos são obrigatórios.");
-        }
-        usuario.setHabilitado(Boolean.TRUE);
-        usuario.setVersao(1L);
-        usuario.setDataCriacao(LocalDate.now());
-        return repository.save(usuario);
-    }
-
-    @Transactional
-    public List<Usuario> listarTodos() {
-        return repository.findAll();
-    }
-
-    @Transactional
-    public Usuario obterPorID(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-    }
-
-    @Transactional
-    public void update(Long id, Usuario usuarioAlterado) {
-        Usuario usuario = obterPorID(id);
-        usuario.setNome(usuarioAlterado.getNome());
-        usuario.setEmail(usuarioAlterado.getEmail());
-        usuario.setSenha(usuarioAlterado.getSenha());
-        usuario.setVersao(usuario.getVersao() + 1);
-        repository.save(usuario);
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        Usuario usuario = obterPorID(id);
-        usuario.setHabilitado(Boolean.FALSE);
-        usuario.setVersao(usuario.getVersao() + 1);
-        repository.save(usuario);
-    }
-
-    public Usuario login(String email, String senha) {
-        Usuario usuario = repository.findByEmail(email);
-        System.out.println(usuario);
-        if (usuario != null && usuario.getSenha().equals(senha)) {
-            return usuario;
-        }
-        throw new IllegalArgumentException("Email ou senha inválidos");
-    }
-=======
 package br.com.hoffmoney_backend.modelo.usuario;
 
 import java.time.LocalDate;
@@ -75,10 +10,9 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioService {
-    
+
     @Autowired
     private UsuarioRepository usuarioRepository;
-      
 
     @Transactional
     public Usuario save(Usuario usuario) {
@@ -125,10 +59,11 @@ public class UsuarioService {
         }
         throw new IllegalArgumentException("Email ou senha inválidos");
     }
-     @Transactional
+
+    @Transactional
     public void decrementarSaldo(Long usuarioId, Double valor) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
 
         Double novoSaldo = usuario.getSaldo() - valor;
         if (novoSaldo < 0) {
@@ -142,12 +77,10 @@ public class UsuarioService {
     @Transactional
     public void incrementarSaldo(Long usuarioId, Double valor) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
 
         Double novoSaldo = usuario.getSaldo() + valor;
         usuario.setSaldo(novoSaldo);
         usuarioRepository.save(usuario);
     }
-   
->>>>>>> 9ec99eb3483f0917d7ae03f09dd63caf99b48036
-} 
+}
