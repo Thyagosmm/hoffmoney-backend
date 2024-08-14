@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,4 +57,14 @@ public class ReceitaController {
         receitaService.deletarReceita(id, usuarioId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+    
+    @PostMapping("/filtrar")
+    public List<Receita> filtrar(
+        @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
+        @RequestParam(value = "valor", required = false) Double valor,
+        @RequestParam(value = "categoria", required = false) String categoria,
+        @RequestParam(value = "nome", required = false) String nome) {
+
+    return receitaService.filtrar(dataDeCobranca, valor, categoria, nome);
+}
 }

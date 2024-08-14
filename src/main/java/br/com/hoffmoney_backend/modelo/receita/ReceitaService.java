@@ -85,4 +85,20 @@ public class ReceitaService {
     public List<Receita> listarReceitasPorUsuarioId(Long usuarioId) {
         return receitaRepository.findByUsuarioId(usuarioId);
     }
+
+    public List<Receita> filtrar(LocalDate dataDeCobranca, Double valor, String categoria, String nome) {
+        List<Receita> listaReceitas = receitaRepository.findAll();
+        
+        if (dataDeCobranca != null && valor == null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaReceitas = receitaRepository.consultarPorDataDeCobranca(dataDeCobranca);
+        } else if (dataDeCobranca == null && valor != null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaReceitas = receitaRepository.consultarPorValor(valor);
+        } else if (dataDeCobranca == null && valor == null && (categoria != null && !"".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaReceitas = receitaRepository.consultarPorCategoria(categoria);
+        } else if (dataDeCobranca == null && valor == null && (categoria == null || "".equals(categoria)) && (nome != null && !"".equals(nome))) {
+            listaReceitas = receitaRepository.consultarPorNome(nome);
+        }
+        
+        return listaReceitas;
+    }
 }
