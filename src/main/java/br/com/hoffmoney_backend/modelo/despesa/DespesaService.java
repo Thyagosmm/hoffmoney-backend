@@ -2,6 +2,7 @@ package br.com.hoffmoney_backend.modelo.despesa;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +22,24 @@ public class DespesaService {
     private UsuarioRepository usuarioRepository;
 
     @Transactional
+    public Despesa salvarDespesa(Despesa despesa) {
+        Usuario usuario = usuarioRepository.findById(despesa.getUsuario().getId())
+            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        despesa.setUsuario(usuario);
+        despesa.setHabilitado(Boolean.TRUE);
+        despesa.setVersao(1L);
+        despesa.setDataCriacao(LocalDate.now());
+        
+        Despesa despesaSalva = despesaRepository.save(despesa);
+        
+        if (despesaSalva.getPaga()) {
+        usuarioRepository.decrementarSaldoPorIdUsuario(despesa.getUsuario().getId(), despesa.getValor());
+        }
+        
+        return despesaSalva;
+    }
+
+    @Transactional
     public List<Despesa> listarTodasDespesas() {
         return despesaRepository.findAll();
     }
@@ -33,17 +52,6 @@ public class DespesaService {
     @Transactional
     public Optional<Despesa> consultarDespesaPorIdEUsuarioId(Long id, Long usuarioId) {
         return despesaRepository.findByIdAndUsuarioId(id, usuarioId);
-    }
-
-    @Transactional
-    public Despesa salvarDespesa(Despesa despesa) {
-        Usuario usuario = usuarioRepository.findById(despesa.getUsuario().getId())
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        despesa.setUsuario(usuario);
-        despesa.setHabilitado(Boolean.TRUE);
-        despesa.setVersao(1L);
-        despesa.setDataCriacao(LocalDate.now());
-        return despesaRepository.save(despesa);
     }
 
     public enum Periodo {
