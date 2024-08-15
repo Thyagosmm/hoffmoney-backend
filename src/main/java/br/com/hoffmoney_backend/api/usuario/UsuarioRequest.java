@@ -20,8 +20,8 @@ public class UsuarioRequest {
     @Length(max = 100, message = "O nome deverá ter no máximo {max} caracteres")
     private String nome;
 
-    @NotBlank(message = "O e-mail é de preenchimento obrigatótio")
-    @Email(message = "O e-mail precisa ser válido")
+    @NotBlank(message = "O e-mail é de preenchimento obrigatótio.")
+    @Email(message = "O e-mail precisa ser válido.")
     private String email;
 
     @NotBlank(message = "A senha é de preenchimento obrigatótio")
