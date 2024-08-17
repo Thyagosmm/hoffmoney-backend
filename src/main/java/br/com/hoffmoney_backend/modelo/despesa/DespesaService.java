@@ -1,5 +1,9 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,10 +11,6 @@ import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class DespesaService {
@@ -84,5 +84,13 @@ public class DespesaService {
 
     public List<Despesa> listarDespesasPorUsuarioId(Long usuarioId) {
         return despesaRepository.findByUsuarioId(usuarioId);
+    }
+
+    @Transactional
+    public void atualizarPaga(Long id, Boolean novaSituacaoPaga) {
+        Despesa despesa = despesaRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada"));
+        despesa.setPaga(novaSituacaoPaga);
+        despesaRepository.save(despesa);
     }
 }
