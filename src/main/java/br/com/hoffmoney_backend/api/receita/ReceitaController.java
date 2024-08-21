@@ -2,6 +2,8 @@ package br.com.hoffmoney_backend.api.receita;
 
 import br.com.hoffmoney_backend.modelo.receita.Receita;
 import br.com.hoffmoney_backend.modelo.receita.ReceitaService;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +43,7 @@ public class ReceitaController {
     }
 
     @PostMapping
-    public ResponseEntity<Receita> criarReceita(@RequestBody Receita receita) {
+    public ResponseEntity<Receita> criarReceita(@RequestBody @Valid Receita receita) {
         receitaService.salvarReceita(receita);
         return ResponseEntity.status(HttpStatus.CREATED).body(receita);
     }
