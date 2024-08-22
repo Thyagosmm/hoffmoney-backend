@@ -20,7 +20,7 @@ public class Usuario extends EntidadeAuditavel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50)
+    @Column(nullable = false, length = 50)
     private String nome;
 
     @Column(length = 100, unique = true)
@@ -29,7 +29,7 @@ public class Usuario extends EntidadeAuditavel {
     @Column(length = 100)
     private String senha;
 
-      @Column(length = 50)
+    @Column(length = 50)
     @Builder.Default
     private Double saldo = 0.0;
 

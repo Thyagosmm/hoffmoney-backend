@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class DespesaService {
 
+
     @Autowired
     private DespesaRepository despesaRepository;
 
@@ -93,4 +94,20 @@ public class DespesaService {
         despesa.setPaga(novaSituacaoPaga);
         despesaRepository.save(despesa);
     }
+
+    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, String categoria, String nome, Long usuarioId) { {
+        List<Despesa> listaDespesas = despesaRepository.findByUsuarioId(usuarioId);
+        
+        if (dataDeCobranca != null && valor == null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorDataDeCobranca(dataDeCobranca);
+        } else if (dataDeCobranca == null && valor != null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorValor(valor);
+        } else if (dataDeCobranca == null && valor == null && (categoria != null && !"".equals(categoria)) && (nome == null || "".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorCategoria(categoria);
+        } else if (dataDeCobranca == null && valor == null && (categoria == null || "".equals(categoria)) && (nome != null && !"".equals(nome))) {
+            listaDespesas = despesaRepository.consultarPorNome(nome);
+        }
+        return listaDespesas;
+    }
+}   
 }

@@ -10,18 +10,13 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioService {
-    
-        @Autowired
-        private UsuarioRepository usuarioRepository;
-      
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Transactional
     public Usuario save(Usuario usuario) {
-            if (usuario.getNome() == null || usuario.getNome().isEmpty() ||
-            usuario.getEmail() == null || usuario.getEmail().isEmpty() ||
-            usuario.getSenha() == null || usuario.getSenha().isEmpty()) {
-            throw new IllegalArgumentException("Todos os campos são obrigatórios.");
-        }
+
         usuario.setHabilitado(Boolean.TRUE);
         usuario.setVersao(1L);
         usuario.setDataCriacao(LocalDate.now());
@@ -64,10 +59,11 @@ public class UsuarioService {
         }
         throw new IllegalArgumentException("Email ou senha inválidos");
     }
-     @Transactional
+
+    @Transactional
     public void decrementarSaldo(Long usuarioId, Double valor) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
 
         Double novoSaldo = usuario.getSaldo() - valor;
         if (novoSaldo < 0) {
@@ -81,11 +77,10 @@ public class UsuarioService {
     @Transactional
     public void incrementarSaldo(Long usuarioId, Double valor) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
 
         Double novoSaldo = usuario.getSaldo() + valor;
         usuario.setSaldo(novoSaldo);
         usuarioRepository.save(usuario);
     }
-   
-} 
+}

@@ -1,11 +1,17 @@
 package br.com.hoffmoney_backend.api.despesa;
 
-import java.util.List;
-import java.util.Optional;
+import br.com.hoffmoney_backend.modelo.despesa.Despesa;
+import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.hoffmoney_backend.modelo.despesa.Despesa;
-import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
 
 @RestController
 @RequestMapping("/api/despesas")
@@ -72,4 +76,14 @@ public class DespesaController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     
+    @PostMapping("/filtrar")
+    public List<Despesa> filtrar(
+        @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
+        @RequestParam(value = "valor", required = false) Double valor,
+        @RequestParam(value = "categoria", required = false) String categoria,
+        @RequestParam(value = "nome", required = false) String nome,
+        @RequestParam(value = "usuarioId", required = true) Long usuarioId) {
+
+    return despesaService.filtrar(dataDeCobranca, valor, categoria, nome, usuarioId);
+}
 }
