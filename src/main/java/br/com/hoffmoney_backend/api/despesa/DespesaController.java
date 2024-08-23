@@ -12,16 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 
 @RestController
 @RequestMapping("/api/despesas")
@@ -36,13 +26,13 @@ public class DespesaController {
         return despesaService.listarTodasDespesas();
     }
 
-    @GetMapping("/usuario/{usuarioId}")
+    @GetMapping("/{usuarioId}")
     public ResponseEntity<List<Despesa>> listarDespesasPorUsuarioId(@PathVariable Long usuarioId) {
         List<Despesa> despesas = despesaService.listarDespesasPorUsuarioId(usuarioId);
         return ResponseEntity.ok(despesas);
     }
 
-    @GetMapping("/usuario/{usuarioId}/{id}")
+    @GetMapping("/{usuarioId}/{id}")
     public ResponseEntity<Despesa> consultarDespesaPorId(@PathVariable Long usuarioId, @PathVariable Long id) {
         Optional<Despesa> despesa = despesaService.consultarDespesaPorIdEUsuarioId(id, usuarioId);
         if (despesa.isPresent()) {
@@ -58,19 +48,19 @@ public class DespesaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(despesa);
     }
 
-    @PutMapping("/usuario/{usuarioId}/{id}")
+    @PutMapping("/{usuarioId}/{id}")
     public ResponseEntity<Void> atualizarDespesa(@PathVariable Long usuarioId, @PathVariable Long id, @RequestBody Despesa novosDados) {
         despesaService.atualizarDespesa(id, usuarioId, novosDados);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @DeleteMapping("/usuario/{usuarioId}/{id}")
+    @DeleteMapping("/{usuarioId}/{id}")
     public ResponseEntity<Void> deletarDespesa(@PathVariable Long usuarioId, @PathVariable Long id) {
         despesaService.deletarDespesa(id, usuarioId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/{id}/paga")
+     @PutMapping("/{id}/paga")
     public ResponseEntity<Void> atualizarPaga(@PathVariable Long id, @RequestBody Boolean novaSituacaoPaga) {
         despesaService.atualizarPaga(id, novaSituacaoPaga);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
