@@ -41,6 +41,7 @@ public class EmailService {
     String starttls;
 
     private JavaMailSender emailSender;
+
     public void enviarEmailConfirmacaoCadastroUsuario(Usuario usuario) {
 
         String assuntoEmail = "Bem vindo ao nosso aplicativo";
@@ -48,7 +49,7 @@ public class EmailService {
         Context params = new Context();
         params.setVariable("usuario", usuario);
 
-        this.sendMailTemplate("usuario_cadastrado.html", usuario.getNome(), assuntoEmail, params);
+        this.sendMailTemplate("usuario_cadastrado.html", usuario.getEmail(), assuntoEmail, params);
     }
 
     @Async
@@ -80,7 +81,7 @@ public class EmailService {
         try {
 
             helper.setFrom(new InternetAddress("not.reply@delifacil.com.br"));
-            helper.setTo(to);
+            helper.setTo(to); // Certifique-se de que 'to' é um endereço de e-mail válido
             helper.setSubject(subject);
             helper.setText(new String(content.getBytes(), StandardCharsets.ISO_8859_1), html);
             helper.setEncodeFilenames(true);
@@ -92,7 +93,7 @@ public class EmailService {
         emailSender.send(message);
     }
 
-   private JavaMailSender getJavaMailSender() {
+    private JavaMailSender getJavaMailSender() {
 
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost(host);
@@ -111,9 +112,3 @@ public class EmailService {
         return mailSender;
     }
 }
-
-
-
-
-
-
