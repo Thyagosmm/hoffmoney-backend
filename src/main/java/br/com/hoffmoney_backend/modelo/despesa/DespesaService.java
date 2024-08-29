@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 @Service
 public class DespesaService {
 
-
     @Autowired
     private DespesaRepository despesaRepository;
 
@@ -25,18 +24,18 @@ public class DespesaService {
     @Transactional
     public Despesa salvarDespesa(Despesa despesa) {
         Usuario usuario = usuarioRepository.findById(despesa.getUsuario().getId())
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         despesa.setUsuario(usuario);
         despesa.setHabilitado(Boolean.TRUE);
         despesa.setVersao(1L);
         despesa.setDataCriacao(LocalDate.now());
-        
+
         Despesa despesaSalva = despesaRepository.save(despesa);
-        
+
         if (despesaSalva.getPaga()) {
-        usuarioRepository.decrementarSaldoPorIdUsuario(despesa.getUsuario().getId(), despesa.getValor());
+            usuarioRepository.decrementarSaldoPorIdUsuario(despesa.getUsuario().getId(), despesa.getValor());
         }
-        
+
         return despesaSalva;
     }
 
@@ -62,13 +61,11 @@ public class DespesaService {
     @Transactional
     public void atualizarDespesa(Long id, Long usuarioId, Despesa novosDados) {
         Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada para o usuário especificado"));
+                .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada para o usuário especificado"));
         despesa.setNome(novosDados.getNome());
         despesa.setDescricao(novosDados.getDescricao());
         despesa.setValor(novosDados.getValor());
-        despesa.setCategoria(novosDados.getCategoria());
-        despesa.setRecorrente(novosDados.getRecorrente());
-        despesa.setPeriodo(novosDados.getPeriodo());
+        despesa.setCategoriaDespesa(novosDados.getCategoriaDespesa());
         despesa.setDataDeCobranca(novosDados.getDataDeCobranca());
         despesa.setPaga(novosDados.getPaga());
         despesa.setVersao(despesa.getVersao() + 1);
@@ -79,7 +76,7 @@ public class DespesaService {
     @Transactional
     public void deletarDespesa(Long id, Long usuarioId) {
         Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada para o usuário especificado"));
+                .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada para o usuário especificado"));
         despesaRepository.delete(despesa);
     }
 
@@ -90,24 +87,27 @@ public class DespesaService {
     @Transactional
     public void atualizarPaga(Long id, Boolean novaSituacaoPaga) {
         Despesa despesa = despesaRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada"));
         despesa.setPaga(novaSituacaoPaga);
         despesaRepository.save(despesa);
     }
 
-    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, String categoria, String nome, Long usuarioId) { {
+    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, Long categoria, String nome, Long usuarioId) {
         List<Despesa> listaDespesas = despesaRepository.findByUsuarioId(usuarioId);
-        
-        if (dataDeCobranca != null && valor == null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+
+        if (dataDeCobranca != null && valor == null && (categoria == null || categoria == 0)
+                && (nome == null || nome.isEmpty())) {
             listaDespesas = despesaRepository.consultarPorDataDeCobranca(dataDeCobranca);
-        } else if (dataDeCobranca == null && valor != null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
+        } else if (dataDeCobranca == null && valor != null && (categoria == null || categoria == 0)
+                && (nome == null || nome.isEmpty())) {
             listaDespesas = despesaRepository.consultarPorValor(valor);
-        } else if (dataDeCobranca == null && valor == null && (categoria != null && !"".equals(categoria)) && (nome == null || "".equals(nome))) {
-            listaDespesas = despesaRepository.consultarPorCategoria(categoria);
-        } else if (dataDeCobranca == null && valor == null && (categoria == null || "".equals(categoria)) && (nome != null && !"".equals(nome))) {
+        } else if (dataDeCobranca == null && valor == null && categoria != null && categoria != 0
+                && (nome == null || nome.isEmpty())) {
+            listaDespesas = despesaRepository.consultarPorCategoriaDespesa(categoria);
+        } else if (dataDeCobranca == null && valor == null && (categoria == null || categoria == 0) && nome != null
+                && !nome.isEmpty()) {
             listaDespesas = despesaRepository.consultarPorNome(nome);
         }
         return listaDespesas;
     }
-}   
 }

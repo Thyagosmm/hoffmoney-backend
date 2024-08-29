@@ -1,5 +1,6 @@
 package br.com.hoffmoney_backend.api.despesa;
 
+import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesaService;
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
 import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
 
@@ -12,7 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-
 @RestController
 @RequestMapping("/api/despesas")
 @CrossOrigin(origins = "*")
@@ -20,6 +20,9 @@ public class DespesaController {
 
     @Autowired
     private DespesaService despesaService;
+
+    @Autowired
+    private CategoriaDespesaService categoriaDespesaService;
 
     @GetMapping
     public List<Despesa> listarTodasDespesas() {
@@ -43,15 +46,24 @@ public class DespesaController {
     }
 
     @PostMapping
-    public ResponseEntity<Despesa> criarDespesa(@RequestBody Despesa despesa) {
-        despesaService.salvarDespesa(despesa);
-        return ResponseEntity.status(HttpStatus.CREATED).body(despesa);
+    public ResponseEntity<Despesa> criarDespesa(@RequestBody DespesaRequest despesaRequest) {
+        if (despesaRequest.getIdCategoriaDespesa() == null) {
+            return ResponseEntity.badRequest().body(null); // ou outra forma de tratar o erro
+        }
+
+        Despesa despesa = despesaRequest.build();
+        Despesa despesaSalva = despesaService.salvarDespesa(despesa);
+        return ResponseEntity.ok(despesaSalva);
     }
 
     @PutMapping("/{usuarioId}/{id}")
-    public ResponseEntity<Void> atualizarDespesa(@PathVariable Long usuarioId, @PathVariable Long id, @RequestBody Despesa novosDados) {
+    public ResponseEntity<Void> atualizarDespesa(@PathVariable Long usuarioId, @PathVariable Long id,
+            @RequestBody Despesa novosDados) {
+        novosDados.setCategoriaDespesa(
+                categoriaDespesaService.consultarCategoriaDespesaPorId(novosDados.getCategoriaDespesa().getId()));
         despesaService.atualizarDespesa(id, usuarioId, novosDados);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
     }
 
     @DeleteMapping("/{usuarioId}/{id}")
@@ -60,20 +72,20 @@ public class DespesaController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-     @PutMapping("/{id}/paga")
+    @PutMapping("/{id}/paga")
     public ResponseEntity<Void> atualizarPaga(@PathVariable Long id, @RequestBody Boolean novaSituacaoPaga) {
         despesaService.atualizarPaga(id, novaSituacaoPaga);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    
+
     @PostMapping("/filtrar")
     public List<Despesa> filtrar(
-        @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
-        @RequestParam(value = "valor", required = false) Double valor,
-        @RequestParam(value = "categoria", required = false) String categoria,
-        @RequestParam(value = "nome", required = false) String nome,
-        @RequestParam(value = "usuarioId", required = true) Long usuarioId) {
+            @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
+            @RequestParam(value = "valor", required = false) Double valor,
+            @RequestParam(value = "categoria", required = false) Long categoria,
+            @RequestParam(value = "nome", required = false) String nome,
+            @RequestParam(value = "usuarioId", required = true) Long usuarioId) {
 
-    return despesaService.filtrar(dataDeCobranca, valor, categoria, nome, usuarioId);
-}
+        return despesaService.filtrar(dataDeCobranca, valor, categoria, nome, usuarioId);
+    }
 }

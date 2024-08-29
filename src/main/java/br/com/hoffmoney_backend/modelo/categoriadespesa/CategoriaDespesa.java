@@ -1,15 +1,9 @@
 package br.com.hoffmoney_backend.modelo.categoriadespesa;
 
-import org.hibernate.annotations.SQLRestriction;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "CategoriaDespesa")
@@ -19,10 +13,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+public class CategoriaDespesa extends EntidadeAuditavel {
 
-public class CategoriaDespesa extends EntidadeAuditavel{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false, length = 100)
     private String descricaoDespesa;
-
 }

@@ -1,12 +1,12 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
+import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesa;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 
@@ -25,31 +25,26 @@ public class Despesa extends EntidadeAuditavel {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id") // Nome da coluna de chave estrangeira
+    @JoinColumn(name = "categoria_despesa_id", nullable = false)
+    private CategoriaDespesa categoriaDespesa;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String nome;
 
     @Column(length = 255)
     private String descricao;
 
-    @Column
+    @Column(nullable = false)
     private Double valor;
 
-    @Column(length = 50)
-    private String categoria;
-    
-    @Column
-    private Boolean recorrente;
-
-    @Column(length = 20)
-    private String periodo;
-
-    @Column
+    @Column(nullable = false)
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataDeCobranca;
 
-    @Column
+    @Column(nullable = false)
     private Boolean paga;
 }

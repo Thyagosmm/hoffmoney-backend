@@ -19,13 +19,12 @@ import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesaService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
-
 @RestController
 @RequestMapping("/api/categoriadespesa")
 @CrossOrigin
 public class CategoriaDespesaController {
 
-  @Autowired
+    @Autowired
     private CategoriaDespesaService categoriaDespesaService;
 
     @Operation(summary = "Serviço responsável por salvar uma categoria de despesa no sistema.")
@@ -41,8 +40,9 @@ public class CategoriaDespesaController {
     @Operation(summary = "Serviço responsável por listar todas as categorias de despesas do sistema.")
 
     @GetMapping
-    public List<CategoriaDespesa> listarTodos() {
-        return categoriaDespesaService.listarTodos();
+    public ResponseEntity<List<CategoriaDespesa>> listarTodas() {
+        List<CategoriaDespesa> categorias = categoriaDespesaService.listarTodos();
+        return ResponseEntity.ok(categorias);
     }
 
     @Operation(summary = "Serviço responsável por listar uma categoria de despesa especifica do sistema.")

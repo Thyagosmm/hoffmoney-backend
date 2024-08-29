@@ -21,8 +21,8 @@ public interface DespesaRepository extends JpaRepository<Despesa, Long> {
     @Query(value = "SELECT d FROM Despesa d WHERE d.valor = :valor")
     List<Despesa> consultarPorValor (Double valor);
 
-    @Query(value = "SELECT d FROM Despesa d WHERE d.categoria like :categoria% ORDER BY d.categoria")
-    List<Despesa> consultarPorCategoria (String categoria);
+    @Query(value = "SELECT d FROM Despesa d WHERE d.categoriaDespesa.id = :idCategoriaDespesa")
+    List<Despesa> consultarPorCategoriaDespesa (Long idCategoriaDespesa);
 
     @Query(value = "SELECT d FROM Despesa d WHERE d.nome like :nome% ORDER BY d.nome")
     List<Despesa> consultarPorNome(String nome);
