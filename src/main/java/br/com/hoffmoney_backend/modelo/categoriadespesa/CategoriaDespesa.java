@@ -1,9 +1,12 @@
 package br.com.hoffmoney_backend.modelo.categoriadespesa;
 
+import br.com.hoffmoney_backend.modelo.despesa.Despesa;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
+
+import java.util.List;
 
 @Entity
 @Table(name = "CategoriaDespesa")
@@ -15,10 +18,9 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor
 public class CategoriaDespesa extends EntidadeAuditavel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false, length = 100)
-    private String descricaoDespesa;
+    private String descricaoCategoriaDespesa;
+
+    @OneToMany(mappedBy = "categoriaDespesa", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Despesa> despesas;
 }

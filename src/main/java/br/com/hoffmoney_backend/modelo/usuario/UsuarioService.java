@@ -41,6 +41,10 @@ public class UsuarioService {
         return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
+    public Usuario findById(Long id) {
+        return usuarioRepository.findById(id).orElse(null);
+    }
+
     @Transactional
     public void update(Long id, Usuario usuarioAlterado) {
         Usuario usuario = obterPorID(id);

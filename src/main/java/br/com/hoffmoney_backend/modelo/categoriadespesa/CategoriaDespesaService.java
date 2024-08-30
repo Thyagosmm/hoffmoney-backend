@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import br.com.hoffmoney_backend.modelo.despesa.DespesaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
@@ -14,41 +15,53 @@ import jakarta.transaction.Transactional;
 public class CategoriaDespesaService {
 
     @Autowired
-    private CategoriaDespesaRepository repository;
+    private CategoriaDespesaRepository categoriaDespesaRepository;
 
     @Autowired
-    private CategoriaDespesaRepository categoriaDespesaRepository;
+    private DespesaRepository despesaRepository;
 
     @Transactional
     public CategoriaDespesa save(CategoriaDespesa categoriaDespesa) {
         categoriaDespesa.setHabilitado(Boolean.TRUE);
         categoriaDespesa.setVersao(1L);
         categoriaDespesa.setDataCriacao(LocalDate.now());
-        return repository.save(categoriaDespesa);
+        return categoriaDespesaRepository.save(categoriaDespesa);
     }
 
     public List<CategoriaDespesa> listarTodos() {
-        return repository.findAll();
+        return categoriaDespesaRepository.findAll();
     }
 
     public CategoriaDespesa obterPorID(Long id) {
-        return repository.findById(id).get();
+        return categoriaDespesaRepository.findById(id).get();
+    }
+
+    public CategoriaDespesa findById(Long id) {
+        return categoriaDespesaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Categoria de despesa não encontrada"));
     }
 
     @Transactional
     public void update(Long id, CategoriaDespesa categoriaDespesaAlterada) {
-        CategoriaDespesa categoriaDespesa = repository.findById(id).get();
-        categoriaDespesa.setDescricaoDespesa(categoriaDespesaAlterada.getDescricaoDespesa());
+        CategoriaDespesa categoriaDespesa = categoriaDespesaRepository.findById(id).get();
+        categoriaDespesa.setDescricaoCategoriaDespesa(categoriaDespesaAlterada.getDescricaoCategoriaDespesa());
         categoriaDespesa.setVersao(categoriaDespesa.getVersao() + 1);
-        repository.save(categoriaDespesa);
+        categoriaDespesaRepository.save(categoriaDespesa);
     }
 
     @Transactional
     public void delete(Long id) {
-        CategoriaDespesa categoriaDespesa = repository.findById(id).get();
+        CategoriaDespesa categoriaDespesa = categoriaDespesaRepository.findById(id).get();
         categoriaDespesa.setHabilitado(Boolean.FALSE);
         categoriaDespesa.setVersao(categoriaDespesa.getVersao() + 1);
-        repository.save(categoriaDespesa);
+
+        // Se necessário, também desabilite as despesas relacionadas
+        categoriaDespesa.getDespesas().forEach(despesa -> {
+            despesa.setHabilitado(Boolean.FALSE);
+            despesaRepository.save(despesa);
+        });
+
+        categoriaDespesaRepository.save(categoriaDespesa);
     }
 
     public CategoriaDespesa consultarCategoriaDespesaPorId(Long id) {
@@ -56,5 +69,4 @@ public class CategoriaDespesaService {
         return categoriaDespesaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("CategoriaDespesa not found with id: " + id));
     }
-
 }

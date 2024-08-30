@@ -1,18 +1,24 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
+import java.time.LocalDate;
+
 import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesa;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.SQLRestriction;
-
-import java.time.LocalDate;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Despesa")
-@SQLRestriction("habilitado = true")
 @Builder
 @Getter
 @Setter
@@ -20,12 +26,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class Despesa extends EntidadeAuditavel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "categoria_despesa_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_despesa_id")
     private CategoriaDespesa categoriaDespesa;
 
     @ManyToOne
@@ -42,9 +44,9 @@ public class Despesa extends EntidadeAuditavel {
     private Double valor;
 
     @Column(nullable = false)
-    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataDeCobranca;
 
     @Column(nullable = false)
     private Boolean paga;
+
 }
