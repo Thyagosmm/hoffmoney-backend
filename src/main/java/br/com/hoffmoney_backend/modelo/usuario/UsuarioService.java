@@ -5,11 +5,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioService {
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -20,6 +24,10 @@ public class UsuarioService {
         usuario.setHabilitado(Boolean.TRUE);
         usuario.setVersao(1L);
         usuario.setDataCriacao(LocalDate.now());
+
+        // Comentar a linha abaixo quando não quiser mandar e-mail
+        emailService.enviarEmailConfirmacaoCadastroUsuario(usuario);
+
         return usuarioRepository.save(usuario);
     }
 
@@ -31,6 +39,10 @@ public class UsuarioService {
     @Transactional
     public Usuario obterPorID(Long id) {
         return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
+    public Usuario findById(Long id) {
+        return usuarioRepository.findById(id).orElse(null);
     }
 
     @Transactional

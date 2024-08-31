@@ -7,38 +7,23 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesa;
+import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesaRepository;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
 public class DespesaService {
 
-
     @Autowired
     private DespesaRepository despesaRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private CategoriaDespesaRepository categoriaDespesaRepository;
 
-    @Transactional
-    public Despesa salvarDespesa(Despesa despesa) {
-        Usuario usuario = usuarioRepository.findById(despesa.getUsuario().getId())
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        despesa.setUsuario(usuario);
-        despesa.setHabilitado(Boolean.TRUE);
-        despesa.setVersao(1L);
-        despesa.setDataCriacao(LocalDate.now());
-        
-        Despesa despesaSalva = despesaRepository.save(despesa);
-        
-        if (despesaSalva.getPaga()) {
-        usuarioRepository.decrementarSaldoPorIdUsuario(despesa.getUsuario().getId(), despesa.getValor());
-        }
-        
-        return despesaSalva;
-    }
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Transactional
     public List<Despesa> listarTodasDespesas() {
@@ -46,8 +31,8 @@ public class DespesaService {
     }
 
     @Transactional
-    public Optional<Despesa> consultarDespesaPorId(Long id) {
-        return despesaRepository.findById(id);
+    public List<Despesa> listarDespesasPorUsuarioId(Long usuarioId) {
+        return despesaRepository.findByUsuarioId(usuarioId);
     }
 
     @Transactional
@@ -55,59 +40,55 @@ public class DespesaService {
         return despesaRepository.findByIdAndUsuarioId(id, usuarioId);
     }
 
-    public enum Periodo {
-        DIARIO, SEMANAL, MENSAL, ANUAL
+    @Transactional
+    public Despesa salvarDespesa(Despesa despesa) {
+        // Verifica se a categoria e o usuário existem antes de salvar
+        Usuario usuario = usuarioRepository.findById(despesa.getUsuario().getId())
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        CategoriaDespesa categoria = categoriaDespesaRepository.findById(despesa.getCategoriaDespesa().getId())
+            .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+
+        despesa.setUsuario(usuario);
+        despesa.setCategoriaDespesa(categoria);
+
+        return despesaRepository.save(despesa);
     }
 
     @Transactional
-    public void atualizarDespesa(Long id, Long usuarioId, Despesa novosDados) {
+    public void atualizarDespesa(Long id, Long usuarioId, Despesa despesaAtualizada) {
         Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada para o usuário especificado"));
-        despesa.setNome(novosDados.getNome());
-        despesa.setDescricao(novosDados.getDescricao());
-        despesa.setValor(novosDados.getValor());
-        despesa.setCategoria(novosDados.getCategoria());
-        despesa.setRecorrente(novosDados.getRecorrente());
-        despesa.setPeriodo(novosDados.getPeriodo());
-        despesa.setDataDeCobranca(novosDados.getDataDeCobranca());
-        despesa.setPaga(novosDados.getPaga());
-        despesa.setVersao(despesa.getVersao() + 1);
-        despesa.setDataUltimaModificacao(LocalDate.now());
+            .orElseThrow(() -> new RuntimeException("Despesa não encontrada para o usuário"));
+
+        // Atualizar os campos da despesa
+        despesa.setNome(despesaAtualizada.getNome());
+        despesa.setDescricao(despesaAtualizada.getDescricao());
+        despesa.setValor(despesaAtualizada.getValor());
+        despesa.setDataDeCobranca(despesaAtualizada.getDataDeCobranca());
+        despesa.setCategoriaDespesa(categoriaDespesaRepository.findById(despesaAtualizada.getCategoriaDespesa().getId())
+            .orElseThrow(() -> new RuntimeException("Categoria não encontrada")));
+
         despesaRepository.save(despesa);
     }
 
     @Transactional
     public void deletarDespesa(Long id, Long usuarioId) {
         Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada para o usuário especificado"));
+            .orElseThrow(() -> new RuntimeException("Despesa não encontrada para o usuário"));
         despesaRepository.delete(despesa);
-    }
-
-    public List<Despesa> listarDespesasPorUsuarioId(Long usuarioId) {
-        return despesaRepository.findByUsuarioId(usuarioId);
     }
 
     @Transactional
     public void atualizarPaga(Long id, Boolean novaSituacaoPaga) {
         Despesa despesa = despesaRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada"));
+            .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+
         despesa.setPaga(novaSituacaoPaga);
         despesaRepository.save(despesa);
     }
 
-    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, String categoria, String nome, Long usuarioId) { {
-        List<Despesa> listaDespesas = despesaRepository.findByUsuarioId(usuarioId);
-        
-        if (dataDeCobranca != null && valor == null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
-            listaDespesas = despesaRepository.consultarPorDataDeCobranca(dataDeCobranca);
-        } else if (dataDeCobranca == null && valor != null && (categoria == null || "".equals(categoria)) && (nome == null || "".equals(nome))) {
-            listaDespesas = despesaRepository.consultarPorValor(valor);
-        } else if (dataDeCobranca == null && valor == null && (categoria != null && !"".equals(categoria)) && (nome == null || "".equals(nome))) {
-            listaDespesas = despesaRepository.consultarPorCategoria(categoria);
-        } else if (dataDeCobranca == null && valor == null && (categoria == null || "".equals(categoria)) && (nome != null && !"".equals(nome))) {
-            listaDespesas = despesaRepository.consultarPorNome(nome);
-        }
-        return listaDespesas;
+    @Transactional
+    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, Long categoria, String nome, Long usuarioId) {
+        return despesaRepository.filtrarDespesas(dataDeCobranca, valor, categoria, nome, usuarioId);
     }
-}   
 }

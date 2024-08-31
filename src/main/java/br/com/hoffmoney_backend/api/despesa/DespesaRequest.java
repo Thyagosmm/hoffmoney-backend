@@ -1,7 +1,6 @@
 package br.com.hoffmoney_backend.api.despesa;
 
-import java.time.LocalDate;
-
+import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesa;
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import lombok.AllArgsConstructor;
@@ -9,28 +8,29 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DespesaRequest {
+
+    private Long idCategoriaDespesa;
     private Usuario usuario;
     private String nome;
     private Double valor;
-    private String categoria;
-    private Boolean recorrente;
-    private String periodo;
+    private String descricao;
     private LocalDate dataDeCobranca;
     private Boolean paga;
 
-    public Despesa build() {
+    public Despesa build(CategoriaDespesa categoriaDespesa){
         return Despesa.builder()
+                .categoriaDespesa(categoriaDespesa)
                 .usuario(usuario)
                 .nome(nome)
                 .valor(valor)
-                .categoria(categoria)
-                .recorrente(recorrente)
-                .periodo(periodo)
+                .descricao(descricao)
                 .dataDeCobranca(dataDeCobranca)
                 .paga(paga)
                 .build();
