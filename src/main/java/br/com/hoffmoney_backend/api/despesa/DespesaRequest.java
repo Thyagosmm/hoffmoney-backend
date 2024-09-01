@@ -24,10 +24,10 @@ public class DespesaRequest {
     private LocalDate dataDeCobranca;
     private Boolean paga;
 
-    public Despesa build(CategoriaDespesa categoriaDespesa){
+    public Despesa build(CategoriaDespesa categoria) {
         return Despesa.builder()
-                .categoriaDespesa(categoriaDespesa)
                 .usuario(usuario)
+                .categoriaDespesa(categoria)
                 .nome(nome)
                 .valor(valor)
                 .descricao(descricao)

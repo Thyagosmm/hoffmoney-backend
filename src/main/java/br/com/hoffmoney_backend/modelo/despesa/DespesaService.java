@@ -41,13 +41,12 @@ public class DespesaService {
     }
 
     @Transactional
-    public Despesa salvarDespesa(Despesa despesa) {
-        // Verifica se a categoria e o usuário existem antes de salvar
+    public Despesa criarDespesa(Despesa despesa) {
         Usuario usuario = usuarioRepository.findById(despesa.getUsuario().getId())
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         CategoriaDespesa categoria = categoriaDespesaRepository.findById(despesa.getCategoriaDespesa().getId())
-            .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
 
         despesa.setUsuario(usuario);
         despesa.setCategoriaDespesa(categoria);
@@ -56,39 +55,40 @@ public class DespesaService {
     }
 
     @Transactional
-    public void atualizarDespesa(Long id, Long usuarioId, Despesa despesaAtualizada) {
-        Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
-            .orElseThrow(() -> new RuntimeException("Despesa não encontrada para o usuário"));
-
-        // Atualizar os campos da despesa
+    public void atualizarDespesa(Long id, Despesa despesaAtualizada) {
+        Despesa despesa = despesaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+        despesa.setCategoriaDespesa(despesaAtualizada.getCategoriaDespesa());
         despesa.setNome(despesaAtualizada.getNome());
         despesa.setDescricao(despesaAtualizada.getDescricao());
         despesa.setValor(despesaAtualizada.getValor());
         despesa.setDataDeCobranca(despesaAtualizada.getDataDeCobranca());
-        despesa.setCategoriaDespesa(categoriaDespesaRepository.findById(despesaAtualizada.getCategoriaDespesa().getId())
-            .orElseThrow(() -> new RuntimeException("Categoria não encontrada")));
-
+        despesa.setPaga(despesaAtualizada.getPaga());
+        despesa.setVersao(despesa.getVersao() + 1);
         despesaRepository.save(despesa);
     }
 
     @Transactional
     public void deletarDespesa(Long id, Long usuarioId) {
         Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
-            .orElseThrow(() -> new RuntimeException("Despesa não encontrada para o usuário"));
-        despesaRepository.delete(despesa);
+                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+        despesa.setHabilitado(false);
+        despesa.setVersao(despesa.getVersao() + 1);
+        despesaRepository.save(despesa);
     }
 
     @Transactional
     public void atualizarPaga(Long id, Boolean novaSituacaoPaga) {
         Despesa despesa = despesaRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
         despesa.setPaga(novaSituacaoPaga);
         despesaRepository.save(despesa);
     }
 
     @Transactional
-    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, Long categoria, String nome, Long usuarioId) {
-        return despesaRepository.filtrarDespesas(dataDeCobranca, valor, categoria, nome, usuarioId);
+    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, Long categoriaDespesa, String nome,
+            Long usuarioId) {
+        return despesaRepository.filtrarDespesas(dataDeCobranca, valor, categoriaDespesa, nome, usuarioId);
     }
 }

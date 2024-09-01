@@ -26,7 +26,7 @@ public class UsuarioService {
         usuario.setDataCriacao(LocalDate.now());
 
         // Comentar a linha abaixo quando não quiser mandar e-mail
-        emailService.enviarEmailConfirmacaoCadastroUsuario(usuario);
+        // emailService.enviarEmailConfirmacaoCadastroUsuario(usuario);
 
         return usuarioRepository.save(usuario);
     }

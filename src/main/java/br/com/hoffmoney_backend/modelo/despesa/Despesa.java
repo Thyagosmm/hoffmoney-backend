@@ -7,8 +7,6 @@ import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -26,12 +24,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Despesa extends EntidadeAuditavel {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_despesa_id")
+    @ManyToOne
     private CategoriaDespesa categoriaDespesa;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     @Column(length = 100, nullable = false)

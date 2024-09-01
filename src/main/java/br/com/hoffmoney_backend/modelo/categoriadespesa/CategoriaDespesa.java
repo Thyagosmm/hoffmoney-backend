@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "CategoriaDespesa")
@@ -21,6 +22,7 @@ public class CategoriaDespesa extends EntidadeAuditavel {
     @Column(nullable = false, length = 100)
     private String descricaoCategoriaDespesa;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "categoriaDespesa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Despesa> despesas;
 }
