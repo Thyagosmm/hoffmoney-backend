@@ -66,8 +66,6 @@ public class ReceitaService {
         receita.setDescricao(novosDados.getDescricao());
         receita.setValor(novosDados.getValor());
         receita.setCategoriaReceita(novosDados.getCategoriaReceita());
-        receita.setRecorrente(novosDados.getRecorrente());
-        receita.setPeriodo(novosDados.getPeriodo());
         receita.setDataDeCobranca(novosDados.getDataDeCobranca());
         receita.setPaga(novosDados.getPaga());
         receita.setVersao(receita.getVersao() + 1);
