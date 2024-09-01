@@ -31,7 +31,7 @@ public class CategoriaReceitaService {
   @Transactional
   public void update(Long id, CategoriaReceita categoriaReceitaAlterada) {
     CategoriaReceita categoriaReceita = repository.findById(id).orElseThrow(() -> new RuntimeException("CategoriaReceita não encontrada com id: " + id));
-    categoriaReceita.setDescricaoReceita(categoriaReceitaAlterada.getDescricaoReceita());
+    categoriaReceita.setDescricaoCategoriaReceita(categoriaReceitaAlterada.getDescricaoCategoriaReceita());
     categoriaReceita.setVersao(categoriaReceita.getVersao() + 1);
     repository.save(categoriaReceita);
   }

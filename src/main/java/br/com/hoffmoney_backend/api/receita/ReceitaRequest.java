@@ -2,6 +2,7 @@ package br.com.hoffmoney_backend.api.receita;
 
 import java.time.LocalDate;
 
+import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceita;
 import br.com.hoffmoney_backend.modelo.receita.Receita;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import jakarta.validation.constraints.NotBlank;
@@ -24,11 +25,7 @@ public class ReceitaRequest {
     private Double valor;
 
     @NotBlank(message = "O campo categoria deve ser preenchido")
-    private String categoria;
-
-    private Boolean recorrente;
-
-    private String periodo;
+    private CategoriaReceita categoriaReceitaId; // Definindo a variável
 
     private LocalDate dataDeCobranca;
 
@@ -39,9 +36,7 @@ public class ReceitaRequest {
                 .usuario(usuario)
                 .nome(nome)
                 .valor(valor)
-                .categoria(categoria)
-                .recorrente(recorrente)
-                .periodo(periodo)
+                .categoriaReceita(categoriaReceitaId)
                 .dataDeCobranca(dataDeCobranca)
                 .paga(paga)
                 .build();

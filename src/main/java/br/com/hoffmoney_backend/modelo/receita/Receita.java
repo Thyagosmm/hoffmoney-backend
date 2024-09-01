@@ -1,5 +1,6 @@
 package br.com.hoffmoney_backend.modelo.receita;
 
+import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceita;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.*;
@@ -37,15 +38,10 @@ public class Receita extends EntidadeAuditavel {
     @Column
     private Double valor;
 
-    @Column(length = 50)
-    private String categoria;
+    @ManyToOne
+    @JoinColumn(name = "categoria_receita_id")
+    private CategoriaReceita categoriaReceita;
     
-    @Column
-    private Boolean recorrente;
-
-    @Column(length = 20)
-    private String periodo;
-
     @Column
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dataDeCobranca;

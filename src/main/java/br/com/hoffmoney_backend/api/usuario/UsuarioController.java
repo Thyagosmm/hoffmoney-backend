@@ -28,9 +28,10 @@ public class UsuarioController {
     public ResponseEntity<?> save(@RequestBody @Valid UsuarioRequest usuarioRequest) {
         if (usuarioRepository.existsByEmail(usuarioRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Este e-mail já está cadastrado.");
+        }else{
+            Usuario usuario = usuarioService.save(usuarioRequest.build());
+            return new ResponseEntity<>(usuario, HttpStatus.CREATED);
         }
-        Usuario usuario = usuarioService.save(usuarioRequest.build());
-        return new ResponseEntity<>(usuario, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Serviço responsável por listar todos os usuários do sistema.")

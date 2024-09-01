@@ -16,11 +16,11 @@ public class CategoriaReceitaRequest {
 
     @NotBlank(message = "A descrição é de preenchimento obrigatório")
     @Size(max = 100, message = "A descrição deve ter no máximo 100 caracteres")
-    private String descricaoReceita;
+    private String descricaoCategoriaReceita;
 
     public CategoriaReceita build() {
         return CategoriaReceita.builder()
-                .descricaoReceita(descricaoReceita)
+                .descricaoCategoriaReceita(descricaoCategoriaReceita)
                 .build();
     }
 }

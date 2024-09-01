@@ -74,7 +74,7 @@ public class DespesaController {
             despesa.setCategoriaDespesa(categoria);
 
             // Salva a nova despesa
-            Despesa novaDespesa = despesaService.salvarDespesa(despesa);
+            despesaService.salvarDespesa(despesa);
             return ResponseEntity.status(HttpStatus.CREATED).body("Despesa criada com sucesso!");
 
         } catch (Exception e) {
