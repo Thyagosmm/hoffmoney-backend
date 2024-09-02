@@ -72,9 +72,8 @@ public class DespesaService {
     public void deletarDespesa(Long id, Long usuarioId) {
         Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
-        despesa.setHabilitado(false);
-        despesa.setVersao(despesa.getVersao() + 1);
-        despesaRepository.save(despesa);
+                
+        despesaRepository.deleteById(id);
     }
 
     @Transactional

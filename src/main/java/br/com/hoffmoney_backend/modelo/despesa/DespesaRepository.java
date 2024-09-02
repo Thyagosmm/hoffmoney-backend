@@ -11,9 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface DespesaRepository extends JpaRepository<Despesa, Long> {
-     List<Despesa> findByUsuarioId(Long usuarioId);
+    List<Despesa> findByUsuarioId(Long usuarioId);
 
-     Optional<Despesa> findByIdAndUsuarioId(Long id, Long usuarioId);
+    Optional<Despesa> findByIdAndUsuarioId(Long id, Long usuarioId);
 
      // Método para filtragem com base em múltiplos critérios
      @Query("SELECT d FROM Despesa d WHERE "
