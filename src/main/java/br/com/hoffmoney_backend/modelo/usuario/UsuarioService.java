@@ -5,15 +5,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
+// import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private EmailService emailService;
+    // @Autowired
+    // private EmailService emailService;
 
     @Autowired
     private UsuarioRepository usuarioRepository;

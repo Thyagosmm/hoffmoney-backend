@@ -1,15 +1,12 @@
 package br.com.hoffmoney_backend.modelo.categoriareceita;
 
-import org.hibernate.annotations.SQLRestriction;
+import br.com.hoffmoney_backend.modelo.receita.Receita;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.List;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "CategoriaReceita")
@@ -22,6 +19,9 @@ import lombok.Setter;
 public class CategoriaReceita extends EntidadeAuditavel {
 
     @Column(nullable = false, length = 100)
-    private String descricaoReceita;
+    private String descricaoCategoriaReceita;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "categoriaReceita", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Receita> receitas;
 }

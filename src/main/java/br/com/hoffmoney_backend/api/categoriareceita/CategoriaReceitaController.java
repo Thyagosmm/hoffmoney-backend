@@ -38,14 +38,16 @@ public class CategoriaReceitaController {
 
     @Operation(summary = "Serviço responsável por listar todas as categorias de receitas do sistema.")
     @GetMapping
-    public List<CategoriaReceita> listarTodos() {
-        return categoriaReceitaService.listarTodos();
+    public ResponseEntity<List<CategoriaReceita>> listarTodos() {
+        List<CategoriaReceita> categorias = categoriaReceitaService.listarTodos();
+        return ResponseEntity.ok(categorias);
     }
 
     @Operation(summary = "Serviço responsável por listar uma categoria de receita específica do sistema.")
     @GetMapping("/{id}")
-    public CategoriaReceita obterPorID(@PathVariable Long id) {
-        return categoriaReceitaService.obterPorID(id);
+    public ResponseEntity<CategoriaReceita> obterPorID(@PathVariable Long id) {
+        CategoriaReceita categoriaReceita = categoriaReceitaService.obterPorID(id);
+        return ResponseEntity.ok(categoriaReceita);
     }
 
     @Operation(summary = "Serviço responsável por alterar dados de uma categoria de receita específica do sistema.")

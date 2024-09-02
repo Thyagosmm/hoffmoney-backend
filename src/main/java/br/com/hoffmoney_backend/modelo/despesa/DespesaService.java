@@ -70,7 +70,7 @@ public class DespesaService {
 
     @Transactional
     public void deletarDespesa(Long id, Long usuarioId) {
-        Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
+        despesaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
         despesaRepository.deleteById(id);

@@ -1,12 +1,11 @@
 package br.com.hoffmoney_backend.modelo.receita;
 
+import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceita;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 
@@ -20,36 +19,24 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class Receita extends EntidadeAuditavel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @ManyToOne
+    private CategoriaReceita categoriaReceita;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id") // Nome da coluna de chave estrangeira
     private Usuario usuario;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String nome;
 
     @Column(length = 255)
     private String descricao;
 
-    @Column
+    @Column(nullable = false)
     private Double valor;
 
-    @Column(length = 50)
-    private String categoria;
-    
-    @Column
-    private Boolean recorrente;
-
-    @Column(length = 20)
-    private String periodo;
-
-    @Column
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @Column(nullable = false)
     private LocalDate dataDeCobranca;
 
-    @Column
+    @Column(nullable = false)
     private Boolean paga;
 }

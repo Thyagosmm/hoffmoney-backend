@@ -2,45 +2,71 @@ package br.com.hoffmoney_backend.modelo.categoriareceita;
 
 import java.time.LocalDate;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import br.com.hoffmoney_backend.modelo.receita.ReceitaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
 public class CategoriaReceitaService {
 
-  @Autowired
-  private CategoriaReceitaRepository repository;
+    @Autowired
+    private CategoriaReceitaRepository categoriaReceitaRepository;
 
-  @Transactional
-  public CategoriaReceita save(CategoriaReceita categoriaReceita) {
-    categoriaReceita.setHabilitado(Boolean.TRUE);
-    categoriaReceita.setVersao(1L);
-    categoriaReceita.setDataCriacao(LocalDate.now());
-    return repository.save(categoriaReceita);
-  }
+    @Autowired
+    private ReceitaRepository  receitaRepository;
 
-  public List<CategoriaReceita> listarTodos() {
-    return repository.findAll();
-  }
+    @Transactional
+    public CategoriaReceita save(CategoriaReceita categoriaReceita) {
+        categoriaReceita.setHabilitado(Boolean.TRUE);
+        categoriaReceita.setVersao(1L);
+        categoriaReceita.setDataCriacao(LocalDate.now());
+        return categoriaReceitaRepository.save(categoriaReceita);
+    }
 
-  public CategoriaReceita obterPorID(Long id) {
-    return repository.findById(id).orElseThrow(() -> new RuntimeException("CategoriaReceita não encontrada com id: " + id));
-  }
+    public List<CategoriaReceita> listarTodos() {
+        return categoriaReceitaRepository.findAll();
+    }
 
-  @Transactional
-  public void update(Long id, CategoriaReceita categoriaReceitaAlterada) {
-    CategoriaReceita categoriaReceita = repository.findById(id).orElseThrow(() -> new RuntimeException("CategoriaReceita não encontrada com id: " + id));
-    categoriaReceita.setDescricaoReceita(categoriaReceitaAlterada.getDescricaoReceita());
-    categoriaReceita.setVersao(categoriaReceita.getVersao() + 1);
-    repository.save(categoriaReceita);
-  }
+    public CategoriaReceita obterPorID(Long id) {
+        return categoriaReceitaRepository.findById(id).get();
+    }
 
-  @Transactional
-  public void delete(Long id) {
-    CategoriaReceita categoriaReceita = repository.findById(id).orElseThrow(() -> new RuntimeException("CategoriaReceita não encontrada com id: " + id));
-    categoriaReceita.setHabilitado(Boolean.FALSE);
-    categoriaReceita.setVersao(categoriaReceita.getVersao() + 1);
-    repository.save(categoriaReceita);
-  }
+    public CategoriaReceita findById(Long id) {
+        return categoriaReceitaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Categoria de despesa não encontrada"));
+    }
+
+    @Transactional
+    public void update(Long id, CategoriaReceita categoriaReceitaAlterada) {
+        CategoriaReceita categoriaReceita = categoriaReceitaRepository.findById(id).get();
+        categoriaReceita.setDescricaoCategoriaReceita(categoriaReceitaAlterada.getDescricaoCategoriaReceita());
+        categoriaReceita.setVersao(categoriaReceita.getVersao() + 1);
+        categoriaReceitaRepository.save(categoriaReceita);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        CategoriaReceita categoriaReceita = categoriaReceitaRepository.findById(id).get();
+        categoriaReceita.setHabilitado(Boolean.FALSE);
+        categoriaReceita.setVersao(categoriaReceita.getVersao() + 1);
+
+        // Se necessário, também desabilite as Receitas relacionadas
+        categoriaReceita.getReceitas().forEach(receita -> {
+            receita.setHabilitado(Boolean.FALSE);
+            receitaRepository.save(receita);
+        });
+
+        categoriaReceitaRepository.save(categoriaReceita);
+    }
+
+    public CategoriaReceita consultarCategoriaReceitaPorId(Long id) {
+        Assert.notNull(id, "The given id must not be null");
+        return categoriaReceitaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("CategoriaReceita not found with id: " + id));
+    }
 }
