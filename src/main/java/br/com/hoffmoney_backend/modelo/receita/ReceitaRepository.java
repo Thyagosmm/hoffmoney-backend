@@ -11,20 +11,20 @@ import java.util.Optional;
 
 @Repository
 public interface ReceitaRepository extends JpaRepository<Receita, Long> {
+        List<Receita> findByUsuarioId(Long usuarioId);
 
-    List<Receita> findByUsuarioId(Long usuarioId);
+        Optional<Receita> findByIdAndUsuarioId(Long id, Long usuarioId);
 
-    Optional<Receita> findByIdAndUsuarioId(Long id, Long usuarioId);
-
-    @Query(value = "SELECT r FROM Receita r WHERE r.dataDeCobranca = :dataDeCobranca")
-    List<Receita> consultarPorDataDeCobranca (LocalDate dataDeCobranca);
-
-    @Query(value = "SELECT r FROM Receita r WHERE r.valor = :valor")
-    List<Receita> consultarPorValor (Double valor);
-
-    @Query("SELECT r FROM Receita r WHERE r.categoriaReceita.descricaoCategoriaReceita = :descricaoCategoriaReceita")
-    List<Receita> consultarPorCategoria(@Param("descricaoCategoriaReceita") String descricaoCategoriaReceita);
-    @Query(value = "SELECT r FROM Receita r WHERE r.nome like :nome% ORDER BY r.nome")
-    List<Receita> consultarPorNome(String nome);
-
+        // Método para filtragem com base em múltiplos critérios
+        @Query("SELECT d FROM Receita d WHERE "
+                        + "(:dataDeCobranca IS NULL OR d.dataDeCobranca = :dataDeCobranca) AND "
+                        + "(:valor IS NULL OR d.valor = :valor) AND "
+                        + "(:categoria IS NULL OR d.categoriaReceita.id = :categoria) AND "
+                        + "(:nome IS NULL OR d.nome LIKE %:nome%) AND "
+                        + "d.usuario.id = :usuarioId")
+        List<Receita> filtrarReceitas(@Param("dataDeCobranca") LocalDate dataDeCobranca,
+                        @Param("valor") Double valor,
+                        @Param("categoria") Long categoria,
+                        @Param("nome") String nome,
+                        @Param("usuarioId") Long usuarioId);
 }

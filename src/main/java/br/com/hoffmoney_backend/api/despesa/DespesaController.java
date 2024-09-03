@@ -4,8 +4,8 @@ import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesa;
 import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesaService;
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
 import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
-import br.com.hoffmoney_backend.modelo.usuario.Usuario;
-import br.com.hoffmoney_backend.modelo.usuario.UsuarioService;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +25,6 @@ public class DespesaController {
 
     @Autowired
     private CategoriaDespesaService categoriaDespesaService;
-
-    @Autowired
-    private UsuarioService usuarioService;
 
     @GetMapping
     public ResponseEntity<List<Despesa>> listarTodasDespesas() {
@@ -49,61 +46,25 @@ public class DespesaController {
     }
 
     @PostMapping
-    public ResponseEntity<String> criarDespesa(@RequestBody Despesa despesa) {
-        try {
-            // Verifica se o usuário está presente e válido
-            Usuario usuario = usuarioService.findById(despesa.getUsuario().getId());
-            if (usuario == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não encontrado.");
-            }
-
-            // Verifica se o ID da categoria despesa foi fornecido
-            Long categoriaId = despesa.getCategoriaDespesa().getId();
-            if (categoriaId == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Categoria não fornecida.");
-            }
-
-            // Busca a categoria despesa pelo ID
-            CategoriaDespesa categoria = categoriaDespesaService.findById(categoriaId);
-            if (categoria == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Categoria não encontrada.");
-            }
-
-            // Define o usuário e a categoria na despesa
-            despesa.setUsuario(usuario);
-            despesa.setCategoriaDespesa(categoria);
-
-            // Salva a nova despesa
-            despesaService.salvarDespesa(despesa);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Despesa criada com sucesso!");
-
-        } catch (Exception e) {
-            e.printStackTrace(); // Consider using a logger here
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao criar despesa.");
-        }
+    public ResponseEntity<Despesa> criarDespesa(@RequestBody @Valid DespesaRequest request) {
+        CategoriaDespesa categoriaDespesa = categoriaDespesaService.obterPorID(request.getIdCategoriaDespesa());
+        Despesa despesaNova = request.build(categoriaDespesa);
+        Despesa despesa = despesaService.criarDespesa(despesaNova);
+        return new ResponseEntity<>(despesa, HttpStatus.CREATED);
     }
 
     @PutMapping("/{usuarioId}/{id}")
-    public ResponseEntity<String> atualizarDespesa(@PathVariable Long usuarioId, @PathVariable Long id,
-            @RequestBody Despesa despesa) {
-        try {
-            despesaService.atualizarDespesa(id, usuarioId, despesa);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Despesa atualizada com sucesso!");
-        } catch (Exception e) {
-            e.printStackTrace(); // Consider using a logger here
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao atualizar despesa.");
-        }
+    public ResponseEntity<Despesa> atualizarDespesa(@PathVariable("id") Long id, @RequestBody DespesaRequest request) {
+        CategoriaDespesa categoriaDespesa = categoriaDespesaService.obterPorID(request.getIdCategoriaDespesa());
+        Despesa despesa = request.build(categoriaDespesa);
+        despesaService.atualizarDespesa(id, despesa);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{usuarioId}/{id}")
-    public ResponseEntity<String> deletarDespesa(@PathVariable Long usuarioId, @PathVariable Long id) {
-        try {
-            despesaService.deletarDespesa(id, usuarioId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Despesa deletada com sucesso!");
-        } catch (Exception e) {
-            e.printStackTrace(); // Consider using a logger here
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao deletar despesa.");
-        }
+    public ResponseEntity<Void> deletarDespesa(@PathVariable Long usuarioId, @PathVariable Long id) {
+        despesaService.deletarDespesa(id, usuarioId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/paga")
@@ -122,11 +83,11 @@ public class DespesaController {
     public ResponseEntity<List<Despesa>> filtrar(
             @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
             @RequestParam(value = "valor", required = false) Double valor,
-            @RequestParam(value = "categoria", required = false) Long categoria,
+            @RequestParam(value = "categoria", required = false) Long idCategoriaDespesa,
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "usuarioId") Long usuarioId) {
 
-        List<Despesa> despesas = despesaService.filtrar(dataDeCobranca, valor, categoria, nome, usuarioId);
+        List<Despesa> despesas = despesaService.filtrar(dataDeCobranca, valor, idCategoriaDespesa, nome, usuarioId);
         return ResponseEntity.ok(despesas);
     }
 }

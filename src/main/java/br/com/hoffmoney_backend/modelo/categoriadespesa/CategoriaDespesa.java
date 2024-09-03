@@ -6,9 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "CategoriaDespesa")
@@ -20,14 +19,10 @@ import java.util.List;
 @NoArgsConstructor
 public class CategoriaDespesa extends EntidadeAuditavel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false, length = 100)
     private String descricaoCategoriaDespesa;
-    
-    @OneToMany(mappedBy = "categoriaDespesa")
+
     @JsonIgnore
+    @OneToMany(mappedBy = "categoriaDespesa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Despesa> despesas;
 }

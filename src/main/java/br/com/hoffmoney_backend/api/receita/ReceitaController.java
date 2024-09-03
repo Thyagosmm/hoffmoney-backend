@@ -1,5 +1,7 @@
 package br.com.hoffmoney_backend.api.receita;
 
+import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceita;
+import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceitaService;
 import br.com.hoffmoney_backend.modelo.receita.Receita;
 import br.com.hoffmoney_backend.modelo.receita.ReceitaService;
 import jakarta.validation.Valid;
@@ -21,52 +23,71 @@ public class ReceitaController {
     @Autowired
     private ReceitaService receitaService;
 
+    @Autowired
+    private CategoriaReceitaService categoriaReceitaService;
+
     @GetMapping
-    public List<Receita> listarTodasReceitas() {
-        return receitaService.listarTodasReceitas();
+    public ResponseEntity<List<Receita>> listarTodasReceitas() {
+        List<Receita> receitas = receitaService.listarTodasReceitas();
+        return ResponseEntity.ok(receitas);
     }
 
-    @GetMapping("/usuario/{usuarioId}")
+    @GetMapping("/{usuarioId}")
     public ResponseEntity<List<Receita>> listarReceitasPorUsuarioId(@PathVariable Long usuarioId) {
         List<Receita> receitas = receitaService.listarReceitasPorUsuarioId(usuarioId);
         return ResponseEntity.ok(receitas);
     }
 
-    @GetMapping("/usuario/{usuarioId}/{id}")
+    @GetMapping("/{usuarioId}/{id}")
     public ResponseEntity<Receita> consultarReceitaPorId(@PathVariable Long usuarioId, @PathVariable Long id) {
         Optional<Receita> receita = receitaService.consultarReceitaPorIdEUsuarioId(id, usuarioId);
-        if (receita.isPresent()) {
-            return ResponseEntity.ok(receita.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return receita.map(ResponseEntity::ok)
+                .orElseThrow();
     }
 
     @PostMapping
-    public ResponseEntity<Receita> criarReceita(@RequestBody @Valid Receita receita) {
-        receitaService.salvarReceita(receita);
-        return ResponseEntity.status(HttpStatus.CREATED).body(receita);
+    public ResponseEntity<Receita> criarReceita(@RequestBody @Valid ReceitaRequest request) {
+        CategoriaReceita categoriaReceita = categoriaReceitaService.obterPorID(request.getIdCategoriaReceita());
+        Receita receitaNova = request.build(categoriaReceita);
+        Receita receita = receitaService.criarReceita(receitaNova);
+        return new ResponseEntity<>(receita, HttpStatus.CREATED);
     }
 
-    @PutMapping("/usuario/{usuarioId}/{id}")
-    public ResponseEntity<Void> atualizarReceita(@PathVariable Long usuarioId, @PathVariable Long id, @RequestBody Receita novosDados) {
-        receitaService.atualizarReceita(id, usuarioId, novosDados);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @PutMapping("/{usuarioId}/{id}")
+    public ResponseEntity<Receita> atualizarReceita(@PathVariable("id") Long id, @RequestBody ReceitaRequest request) {
+        CategoriaReceita categoriaReceita = categoriaReceitaService.obterPorID(request.getIdCategoriaReceita());
+        Receita receita = request.build(categoriaReceita);
+        receitaService.atualizarReceita(id, receita);
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/usuario/{usuarioId}/{id}")
+    @DeleteMapping("/{usuarioId}/{id}")
     public ResponseEntity<Void> deletarReceita(@PathVariable Long usuarioId, @PathVariable Long id) {
         receitaService.deletarReceita(id, usuarioId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok().build();
     }
-    
-    @PostMapping("/filtrar")
-    public List<Receita> filtrar(
-        @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
-        @RequestParam(value = "valor", required = false) Double valor,
-        @RequestParam(value = "categoria", required = false) String categoria,
-        @RequestParam(value = "nome", required = false) String nome) {
 
-    return receitaService.filtrar(dataDeCobranca, valor, categoria, nome);
-}
+    @PutMapping("/{id}/paga")
+    public ResponseEntity<String> atualizarPaga(@PathVariable Long id, @RequestBody Boolean novaSituacaoPaga) {
+        try {
+            receitaService.atualizarPaga(id, novaSituacaoPaga);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Situação de pagamento atualizada com sucesso!");
+        } catch (Exception e) {
+            e.printStackTrace(); // Consider using a logger here
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar situação de pagamento.");
+        }
+    }
+
+    @PostMapping("/filtrar")
+    public ResponseEntity<List<Receita>> filtrar(
+            @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
+            @RequestParam(value = "valor", required = false) Double valor,
+            @RequestParam(value = "categoria", required = false) Long idCategoriaReceita,
+            @RequestParam(value = "nome", required = false) String nome,
+            @RequestParam(value = "usuarioId") Long usuarioId) {
+
+        List<Receita> receitas = receitaService.filtrar(dataDeCobranca, valor, idCategoriaReceita, nome, usuarioId);
+        return ResponseEntity.ok(receitas);
+    }
 }

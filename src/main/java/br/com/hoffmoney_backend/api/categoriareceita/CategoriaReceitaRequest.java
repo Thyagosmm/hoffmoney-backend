@@ -19,6 +19,7 @@ public class CategoriaReceitaRequest {
     private String descricaoCategoriaReceita;
 
     public CategoriaReceita build() {
+        
         return CategoriaReceita.builder()
                 .descricaoCategoriaReceita(descricaoCategoriaReceita)
                 .build();
