@@ -1,13 +1,13 @@
 package br.com.hoffmoney_backend.api.receita;
 
 import java.time.LocalDate;
-
 import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceita;
 import br.com.hoffmoney_backend.modelo.receita.Receita;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
 import lombok.NoArgsConstructor;
 
 @Data
@@ -30,6 +30,7 @@ public class ReceitaRequest {
                 .categoriaReceita(categoria)
                 .nome(nome)
                 .valor(valor)
+                .descricao(descricao)
                 .dataDeCobranca(dataDeCobranca)
                 .paga(paga)
                 .build();

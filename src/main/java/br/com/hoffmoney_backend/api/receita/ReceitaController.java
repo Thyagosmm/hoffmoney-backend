@@ -91,4 +91,3 @@ public class ReceitaController {
         return ResponseEntity.ok(receitas);
     }
 }
-
