@@ -36,3 +36,4 @@ build/
 *.class
 *.class
 /target
+/target/classes
