@@ -52,12 +52,7 @@ public class ReceitaService {
         receita.setUsuario(usuario);
         receita.setCategoriaReceita(categoria);
 
-        Receita novaReceita = receitaRepository.save(receita);
-
-        usuario.setSaldo(usuario.getSaldo() + novaReceita.getValor());
-        usuarioRepository.save(usuario);
-
-        return novaReceita;
+        return receitaRepository.save(receita);
     }
 
     @Transactional
@@ -88,12 +83,13 @@ public class ReceitaService {
         Receita receita = receitaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
 
+        double valorReceita = receita.getValor();
+        receitaRepository.deleteById(id);
+
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        usuario.setSaldo(usuario.getSaldo() - receita.getValor());
+        usuario.setSaldo(usuario.getSaldo() - valorReceita);
         usuarioRepository.save(usuario);
-        receitaRepository.deleteById(id);
     }
 
     @Transactional
