@@ -25,6 +25,10 @@ public class UsuarioService {
         usuario.setVersao(1L);
         usuario.setDataCriacao(LocalDate.now());
 
+        // Todos os usuarios criados iniciarem com saldo e limite zero
+        usuario.setSaldo(0.0);
+        usuario.setLimite(0.0);
+
         // Comentar a linha abaixo quando não quiser mandar e-mail
         // emailService.enviarEmailConfirmacaoCadastroUsuario(usuario);
 
@@ -95,12 +99,13 @@ public class UsuarioService {
         usuario.setSaldo(novoSaldo);
         usuarioRepository.save(usuario);
     }
-    @Transactional
-public void atualizarLimite(Long usuarioId, Double novoLimite) {
-    Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
 
-    usuario.setLimite(novoLimite);
-    usuarioRepository.save(usuario);
-}
+    @Transactional
+    public void atualizarLimite(Long usuarioId, Double novoLimite) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+
+        usuario.setLimite(novoLimite);
+        usuarioRepository.save(usuario);
+    }
 }

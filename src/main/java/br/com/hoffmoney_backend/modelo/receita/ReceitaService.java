@@ -52,32 +52,50 @@ public class ReceitaService {
         receita.setUsuario(usuario);
         receita.setCategoriaReceita(categoria);
 
-        return receitaRepository.save(receita);
+        Receita novaReceita = receitaRepository.save(receita);
+
+        usuario.setSaldo(usuario.getSaldo() + novaReceita.getValor());
+        usuarioRepository.save(usuario);
+
+        return novaReceita;
     }
 
     @Transactional
     public void atualizarReceita(Long id, Receita receitaAtualizada) {
         Receita receita = receitaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+
+        double valorAntigo = receita.getValor();
+        double valorNovo = receitaAtualizada.getValor();
+        double diferenca = valorNovo - valorAntigo;
+
         receita.setCategoriaReceita(receitaAtualizada.getCategoriaReceita());
         receita.setNome(receitaAtualizada.getNome());
         receita.setDescricao(receitaAtualizada.getDescricao());
-        receita.setValor(receitaAtualizada.getValor());
+        receita.setValor(valorNovo);
         receita.setDataDeCobranca(receitaAtualizada.getDataDeCobranca());
         receita.setPaga(receitaAtualizada.getPaga());
         receita.setVersao(receita.getVersao() + 1);
         receitaRepository.save(receita);
+
+        Usuario usuario = receita.getUsuario();
+        usuario.setSaldo(usuario.getSaldo() + diferenca);
+        usuarioRepository.save(usuario);
     }
 
     @Transactional
     public void deletarReceita(Long id, Long usuarioId) {
-        receitaRepository.findByIdAndUsuarioId(id, usuarioId)
+        Receita receita = receitaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
 
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuario.setSaldo(usuario.getSaldo() - receita.getValor());
+        usuarioRepository.save(usuario);
         receitaRepository.deleteById(id);
     }
 
-    
     @Transactional
     public void atualizarPaga(Long receitaId, Boolean novaSituacaoPaga) {
         Receita receita = receitaRepository.findById(receitaId)
@@ -86,10 +104,8 @@ public class ReceitaService {
         Usuario usuario = receita.getUsuario();
 
         if (novaSituacaoPaga && !receita.getPaga()) {
-            // Se a receita está sendo marcada como paga, adicionar o valor ao saldo do usuário
             usuario.setSaldo(usuario.getSaldo() + receita.getValor());
         } else if (!novaSituacaoPaga && receita.getPaga()) {
-            // Se a receita está sendo desmarcada como paga, subtrair o valor do saldo do usuário
             usuario.setSaldo(usuario.getSaldo() - receita.getValor());
         }
 

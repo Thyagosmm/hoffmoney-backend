@@ -57,27 +57,41 @@ public class DespesaService {
 
     @Transactional
     public void atualizarDespesa(Long id, Despesa despesaAtualizada) {
-        Despesa despesa = despesaRepository.findById(id)
+        Despesa despesaExistente = despesaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
-        despesa.setCategoriaDespesa(despesaAtualizada.getCategoriaDespesa());
-        despesa.setNome(despesaAtualizada.getNome());
-        despesa.setDescricao(despesaAtualizada.getDescricao());
-        despesa.setValor(despesaAtualizada.getValor());
-        despesa.setDataDeCobranca(despesaAtualizada.getDataDeCobranca());
-        despesa.setPaga(despesaAtualizada.getPaga());
-        despesa.setVersao(despesa.getVersao() + 1);
-        despesaRepository.save(despesa);
+
+        double valorAnterior = despesaExistente.getValor();
+
+        despesaExistente.setCategoriaDespesa(despesaAtualizada.getCategoriaDespesa());
+        despesaExistente.setNome(despesaAtualizada.getNome());
+        despesaExistente.setDescricao(despesaAtualizada.getDescricao());
+        despesaExistente.setValor(despesaAtualizada.getValor());
+        despesaExistente.setDataDeCobranca(despesaAtualizada.getDataDeCobranca());
+        despesaExistente.setPaga(despesaAtualizada.isPaga());
+        despesaExistente.setVersao(despesaExistente.getVersao() + 1);
+        despesaRepository.save(despesaExistente);
+
+        if (despesaExistente.isPaga()) {
+            Usuario usuario = despesaExistente.getUsuario();
+            usuario.setSaldo(usuario.getSaldo() + valorAnterior - despesaExistente.getValor());
+            usuarioRepository.save(usuario);
+        }
     }
 
     @Transactional
     public void deletarDespesa(Long id, Long usuarioId) {
-        despesaRepository.findByIdAndUsuarioId(id, usuarioId)
+        Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
+        double valorDespesa = despesa.getValor();
         despesaRepository.deleteById(id);
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        usuario.setSaldo(usuario.getSaldo() + valorDespesa);
+        usuarioRepository.save(usuario);
     }
 
- 
     @Transactional
     public void atualizarPaga(Long despesaId, Boolean novaSituacaoPaga) {
         Despesa despesa = despesaRepository.findById(despesaId)
