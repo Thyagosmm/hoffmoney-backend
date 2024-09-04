@@ -95,4 +95,12 @@ public class UsuarioService {
         usuario.setSaldo(novoSaldo);
         usuarioRepository.save(usuario);
     }
+    @Transactional
+public void atualizarLimite(Long usuarioId, Double novoLimite) {
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado para o ID especificado"));
+
+    usuario.setLimite(novoLimite);
+    usuarioRepository.save(usuario);
+}
 }

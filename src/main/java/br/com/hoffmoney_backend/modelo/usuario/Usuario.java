@@ -33,4 +33,7 @@ public class Usuario extends EntidadeAuditavel {
     @Column()
     @Builder.Default
     private Double saldo = 0.0;
+    @Column()
+    @Builder.Default
+    private Double limite = 0.0;
 }

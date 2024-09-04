@@ -29,6 +29,7 @@ public class UsuarioRequest {
     private String senha;
 
     private Double saldo;
+    private Double limite;
 
     public Usuario build() {
         return Usuario.builder()
@@ -36,6 +37,7 @@ public class UsuarioRequest {
                 .email(email)
                 .senha(senha)
                 .saldo(saldo)
+                .limite(limite)
 
                 .build();
     }

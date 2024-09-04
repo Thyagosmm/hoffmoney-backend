@@ -78,6 +78,7 @@ public class ReceitaController {
                     .body("Erro ao atualizar situação de pagamento.");
         }
     }
+    
 
     @PostMapping("/filtrar")
     public ResponseEntity<List<Receita>> filtrar(

@@ -37,3 +37,4 @@ build/
 *.class
 /target
 /target/classes
+*.class

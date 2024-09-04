@@ -11,6 +11,7 @@ import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceita;
 import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceitaRepository;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -76,13 +77,25 @@ public class ReceitaService {
         receitaRepository.deleteById(id);
     }
 
+    
     @Transactional
-    public void atualizarPaga(Long id, Boolean novaSituacaoPaga) {
-        Receita receita = receitaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+    public void atualizarPaga(Long receitaId, Boolean novaSituacaoPaga) {
+        Receita receita = receitaRepository.findById(receitaId)
+                .orElseThrow(() -> new EntityNotFoundException("Receita não encontrada para o ID especificado"));
+
+        Usuario usuario = receita.getUsuario();
+
+        if (novaSituacaoPaga && !receita.getPaga()) {
+            // Se a receita está sendo marcada como paga, adicionar o valor ao saldo do usuário
+            usuario.setSaldo(usuario.getSaldo() + receita.getValor());
+        } else if (!novaSituacaoPaga && receita.getPaga()) {
+            // Se a receita está sendo desmarcada como paga, subtrair o valor do saldo do usuário
+            usuario.setSaldo(usuario.getSaldo() - receita.getValor());
+        }
 
         receita.setPaga(novaSituacaoPaga);
         receitaRepository.save(receita);
+        usuarioRepository.save(usuario);
     }
 
     @Transactional

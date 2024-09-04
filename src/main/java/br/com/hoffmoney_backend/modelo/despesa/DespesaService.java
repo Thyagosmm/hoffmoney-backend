@@ -11,6 +11,7 @@ import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesa;
 import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesaRepository;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -76,13 +77,23 @@ public class DespesaService {
         despesaRepository.deleteById(id);
     }
 
+ 
     @Transactional
-    public void atualizarPaga(Long id, Boolean novaSituacaoPaga) {
-        Despesa despesa = despesaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+    public void atualizarPaga(Long despesaId, Boolean novaSituacaoPaga) {
+        Despesa despesa = despesaRepository.findById(despesaId)
+                .orElseThrow(() -> new EntityNotFoundException("Despesa não encontrada para o ID especificado"));
+
+        Usuario usuario = despesa.getUsuario();
+
+        if (novaSituacaoPaga && !despesa.getPaga()) {
+            usuario.setSaldo(usuario.getSaldo() - despesa.getValor());
+        } else if (!novaSituacaoPaga && despesa.getPaga()) {
+            usuario.setSaldo(usuario.getSaldo() + despesa.getValor());
+        }
 
         despesa.setPaga(novaSituacaoPaga);
         despesaRepository.save(despesa);
+        usuarioRepository.save(usuario);
     }
 
     @Transactional
