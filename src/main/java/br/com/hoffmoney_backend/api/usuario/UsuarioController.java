@@ -28,7 +28,7 @@ public class UsuarioController {
     public ResponseEntity<?> save(@RequestBody @Valid UsuarioRequest usuarioRequest) {
         if (usuarioRepository.existsByEmail(usuarioRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Este e-mail já está cadastrado.");
-        }else{
+        } else {
             Usuario usuario = usuarioService.save(usuarioRequest.build());
             return new ResponseEntity<>(usuario, HttpStatus.CREATED);
         }
@@ -112,15 +112,16 @@ public class UsuarioController {
         Double saldo = usuarioService.obterPorID(id).getSaldo();
         return ResponseEntity.ok(saldo);
     }
+
     @GetMapping("/{id}/limite")
     public ResponseEntity<?> consultarLimite(@PathVariable Long id) {
         Double limite = usuarioService.obterPorID(id).getLimite();
         return ResponseEntity.ok(limite);
     }
+
     @PutMapping("/{id}/limite")
     public ResponseEntity<Void> atualizarLimite(@PathVariable Long id, @RequestBody Double novoLimite) {
         usuarioService.atualizarLimite(id, novoLimite);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
-
