@@ -1,6 +1,7 @@
 package br.com.hoffmoney_backend.modelo.usuario;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 // import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
@@ -105,5 +107,25 @@ public class UsuarioService {
 
         usuario.setLimite(novoLimite);
         usuarioRepository.save(usuario);
+    }
+
+    // Método para gerar o token de recuperação de senha
+    public String gerarTokenRecuperacao(Usuario usuario) {
+        String token = UUID.randomUUID().toString();
+        usuario.setResetToken(token);
+        usuario.setResetTokenExpiry(LocalDateTime.now().plusHours(1)); // Token válido por 1 hora
+        usuarioRepository.save(usuario);
+        return token;
+    }
+
+    // Método para validar o token de recuperação de senha
+    public Usuario validarTokenRecuperacao(String token) {
+        Usuario usuario = usuarioRepository.findByResetToken(token);
+
+        if (usuario == null || usuario.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token inválido ou expirado.");
+        }
+
+        return usuario;
     }
 }

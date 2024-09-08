@@ -1,5 +1,7 @@
 package br.com.hoffmoney_backend.modelo.usuario;
 
+import java.time.LocalDateTime;
+
 import org.hibernate.annotations.SQLRestriction;
 
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
@@ -36,4 +38,9 @@ public class Usuario extends EntidadeAuditavel {
     @Column()
     @Builder.Default
     private Double limite = 0.0;
+
+    // Token de recuperação de senha
+    private String resetToken;
+    // Data de expiração do token de recuperação
+    private LocalDateTime resetTokenExpiry;
 }

@@ -15,6 +15,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     boolean existsByEmail(String email);
 
+    // Método para buscar o usuário pelo token de recuperação de senha
+    Usuario findByResetToken(String resetToken);
+
     @Modifying
     @Query("UPDATE Usuario u SET u.saldo = u.saldo - :valor WHERE u.id = :usuarioId")
     void decrementarSaldoPorIdUsuario(@Param("usuarioId") Long usuarioId, @Param("valor") Double valor);

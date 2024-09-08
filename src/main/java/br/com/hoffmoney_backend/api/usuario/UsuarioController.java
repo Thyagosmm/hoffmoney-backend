@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioRepository;
 import br.com.hoffmoney_backend.modelo.usuario.UsuarioService;
@@ -22,6 +23,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Operation(summary = "Serviço responsável por salvar um usuário no sistema.")
     @PostMapping
@@ -123,5 +127,49 @@ public class UsuarioController {
     public ResponseEntity<Void> atualizarLimite(@PathVariable Long id, @RequestBody Double novoLimite) {
         usuarioService.atualizarLimite(id, novoLimite);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // Endpoint para solicitar recuperação de senha
+    @Operation(summary = "Solicitar recuperação de senha.")
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
+        }
+
+        // Gerar token de recuperação de senha
+        String token = usuarioService.gerarTokenRecuperacao(usuario);
+
+        // Montar o link de recuperação de senha
+        String link = "http://localhost:3000/reset?token=" + token;  // Alterar conforme o URL do frontend
+
+        // Enviar e-mail de redefinição de senha
+        emailService.enviarEmailRedefinicaoSenha(usuario.getEmail(), link);
+
+        return ResponseEntity.ok("E-mail de redefinição enviado com sucesso.");
+    }
+
+    // Endpoint para redefinir a senha usando o token
+    @Operation(summary = "Redefinir senha usando o token.")
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<?> redefinirSenha(@RequestParam String token, @RequestParam String novaSenha) {
+        try {
+            // Validar o token e obter o usuário
+            Usuario usuario = usuarioService.validarTokenRecuperacao(token);
+
+            // Redefinir a senha do usuário
+            usuario.setSenha(novaSenha);
+            usuario.setResetToken(null);  // Limpar o token
+            usuario.setResetTokenExpiry(null);  // Limpar a expiração do token
+
+            // Atualizar o usuário com a nova senha
+            usuarioService.update(usuario.getId(), usuario);
+
+            return ResponseEntity.ok("Senha redefinida com sucesso.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
+        }
     }
 }
