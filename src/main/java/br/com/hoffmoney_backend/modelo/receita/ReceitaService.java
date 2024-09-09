@@ -3,10 +3,9 @@ package br.com.hoffmoney_backend.modelo.receita;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
 import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceita;
 import br.com.hoffmoney_backend.modelo.categoriareceita.CategoriaReceitaRepository;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
@@ -73,9 +72,11 @@ public class ReceitaService {
         receita.setVersao(receita.getVersao() + 1);
         receitaRepository.save(receita);
 
-        Usuario usuario = receita.getUsuario();
-        usuario.setSaldo(usuario.getSaldo() + diferenca);
-        usuarioRepository.save(usuario);
+        if (receita.isPaga()) {
+            Usuario usuario = receita.getUsuario();
+            usuario.setSaldo(usuario.getSaldo() + diferenca);
+            usuarioRepository.save(usuario);
+        }
     }
 
     @Transactional
@@ -110,9 +111,11 @@ public class ReceitaService {
         usuarioRepository.save(usuario);
     }
 
-    @Transactional
-    public List<Receita> filtrar(LocalDate dataDeCobranca, Double valor, Long categoriaDespesa, String nome,
-            Long usuarioId) {
-        return receitaRepository.filtrarReceitas(dataDeCobranca, valor, categoriaDespesa, nome, usuarioId);
+    public List<Receita> filtrarReceitas(String nome, Double valor, LocalDate dataDeCobranca, Long idCategoriaReceita) {
+        Specification<Receita> spec = Specification.where(ReceitaSpecifications.hasNome(nome))
+                .and(ReceitaSpecifications.hasValor(valor))
+                .and(ReceitaSpecifications.hasDataDeCobranca(dataDeCobranca))
+                .and(ReceitaSpecifications.hasCategoriaReceita(idCategoriaReceita));
+        return receitaRepository.findAll(spec);
     }
 }

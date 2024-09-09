@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,17 +77,13 @@ public class ReceitaController {
                     .body("Erro ao atualizar situação de pagamento.");
         }
     }
-    
 
     @PostMapping("/filtrar")
-    public ResponseEntity<List<Receita>> filtrar(
-            @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
-            @RequestParam(value = "valor", required = false) Double valor,
-            @RequestParam(value = "categoria", required = false) Long idCategoriaReceita,
-            @RequestParam(value = "nome", required = false) String nome,
-            @RequestParam(value = "usuarioId") Long usuarioId) {
-
-        List<Receita> receitas = receitaService.filtrar(dataDeCobranca, valor, idCategoriaReceita, nome, usuarioId);
-        return ResponseEntity.ok(receitas);
+    public List<Receita> filtrarReceitas(@RequestBody FiltroReceitaDTO filtros) {
+        return receitaService.filtrarReceitas(
+                filtros.getNome(),
+                filtros.getValor(),
+                filtros.getDataDeCobranca(),
+                filtros.getIdCategoriaReceita());
     }
 }
