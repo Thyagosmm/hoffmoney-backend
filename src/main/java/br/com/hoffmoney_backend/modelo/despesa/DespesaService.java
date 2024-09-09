@@ -1,12 +1,14 @@
 package br.com.hoffmoney_backend.modelo.despesa;
 
 import java.time.LocalDate;
+// import java.time.LocalDate;
+// import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
 import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesa;
 import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesaRepository;
 import br.com.hoffmoney_backend.modelo.usuario.Usuario;
@@ -83,13 +85,14 @@ public class DespesaService {
         Despesa despesa = despesaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
-        double valorDespesa = despesa.getValor();
         despesaRepository.deleteById(id);
 
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        usuario.setSaldo(usuario.getSaldo() + valorDespesa);
-        usuarioRepository.save(usuario);
+        if (despesa.isPaga()) {
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            usuario.setSaldo(usuario.getSaldo() + despesa.getValor());
+            usuarioRepository.save(usuario);
+        }
     }
 
     @Transactional
@@ -110,9 +113,11 @@ public class DespesaService {
         usuarioRepository.save(usuario);
     }
 
-    @Transactional
-    public List<Despesa> filtrar(LocalDate dataDeCobranca, Double valor, Long categoriaDespesa, String nome,
-            Long usuarioId) {
-        return despesaRepository.filtrarDespesas(dataDeCobranca, valor, categoriaDespesa, nome, usuarioId);
+    public List<Despesa> filtrarDespesas(String nome, Double valor, LocalDate dataDeCobranca, Long idCategoriaDespesa) {
+        Specification<Despesa> spec = Specification.where(DespesaSpecifications.hasNome(nome))
+                .and(DespesaSpecifications.hasValor(valor))
+                .and(DespesaSpecifications.hasDataDeCobranca(dataDeCobranca))
+                .and(DespesaSpecifications.hasCategoriaDespesa(idCategoriaDespesa));
+        return despesaRepository.findAll(spec);
     }
 }

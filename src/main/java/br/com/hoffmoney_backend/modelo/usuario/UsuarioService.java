@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
+// import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
@@ -14,8 +14,8 @@ import java.util.UUID;
 @Service
 public class UsuarioService {
 
-    @Autowired
-    private EmailService emailService;
+    // @Autowired
+    // private EmailService emailService;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -30,7 +30,7 @@ public class UsuarioService {
         usuario.setLimite(0.0);
 
         // Comentar a linha abaixo quando não quiser mandar e-mail
-        emailService.enviarEmailConfirmacaoCadastroUsuario(usuario);
+        // emailService.enviarEmailConfirmacaoCadastroUsuario(usuario);
 
         return usuarioRepository.save(usuario);
     }
