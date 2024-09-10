@@ -76,6 +76,9 @@ public class UsuarioController {
             if (!usuario.getSenha().equals(loginRequest.getSenha())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha incorreta");
             }
+            if (!usuario.getHabilitado()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Conta não ativada. Verifique seu e-mail.");
+            }
 
             Usuario logado = new Usuario();
             logado.setId(usuario.getId());
@@ -170,6 +173,23 @@ public class UsuarioController {
             return ResponseEntity.ok("Senha redefinida com sucesso.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
+        }
+    }
+    @Operation(summary = "Ativar conta usando o token.")
+    @GetMapping("/ativar")
+    public ResponseEntity<?> ativarConta(@RequestParam String token) {
+        try {
+            // Validar o token e obter o usuário
+            Usuario usuario = usuarioService.validarTokenAtivacao(token);
+            if (usuario.getHabilitado()) {
+                return ResponseEntity.ok("Conta ativada com sucesso.");
+            }
+            // Ativar a conta do usuário
+            usuarioService.ativarConta(usuario);
+
+            return ResponseEntity.ok("Conta ativada com sucesso.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

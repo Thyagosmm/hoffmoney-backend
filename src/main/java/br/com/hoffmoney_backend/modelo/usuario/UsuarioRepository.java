@@ -21,4 +21,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Modifying
     @Query("UPDATE Usuario u SET u.saldo = u.saldo - :valor WHERE u.id = :usuarioId")
     void decrementarSaldoPorIdUsuario(@Param("usuarioId") Long usuarioId, @Param("valor") Double valor);
+
+    Optional<Usuario> findByAtivacaoToken(String token);
 }

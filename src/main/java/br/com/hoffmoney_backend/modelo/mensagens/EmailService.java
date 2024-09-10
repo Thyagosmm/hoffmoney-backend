@@ -111,4 +111,17 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+    @Async
+    public void enviarEmail(String email, String assunto, String conteudo) {
+        try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(email);
+            helper.setSubject(assunto);
+            helper.setText(conteudo, true);
+            emailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
 }

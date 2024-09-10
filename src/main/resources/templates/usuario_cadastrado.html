@@ -33,14 +33,26 @@
             font-size: 14px;
             color: #777;
         }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #4CAF50;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Cadastro Realizado Com Sucesso!</h1>
         <p>Olá, <span th:text="${usuario.nome} ?: ''"></span></p>
-        <p>Você acaba de se cadastar na Hoff Money.</p>
-        <p>Com a nossa plataforma online, você terá acesso a ferramentas poderosas para acompanhar seus gastos, fazer orçamentos e alcançar suas metas financeiras. Diga adeus ao estresse financeiro e dê as boas-vindas a uma vida de prosperidade!</p>        
+        <p>Você acaba de se cadastrar na Hoff Money.</p>
+        <p>Com a nossa plataforma online, você terá acesso a ferramentas poderosas para acompanhar seus gastos, fazer orçamentos e alcançar suas metas financeiras. Diga adeus ao estresse financeiro e dê as boas-vindas a uma vida de prosperidade!</p>
+        <p>Para ativar sua conta, clique no botão abaixo:</p>
+        <a th:href="@{${link}}" class="button">Ativar Conta</a>
         <p>Atenciosamente,<br>Equipe Hoff Money</p>
         <div class="footer">
             <p>Este é um e-mail automático, por favor não responda.</p>
