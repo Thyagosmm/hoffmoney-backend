@@ -38,3 +38,5 @@ build/
 /target
 /target/classes
 *.class
+target/classes/br/com/hoffmoney_backend/api/despesa/DespesaController.class
+target/classes/br/com/hoffmoney_backend/modelo/despesa/DespesaService.class

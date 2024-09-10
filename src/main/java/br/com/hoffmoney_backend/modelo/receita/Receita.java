@@ -44,4 +44,8 @@ public class Receita extends EntidadeAuditavel {
 
     @Column(nullable = false)
     private Boolean paga;
+
+    public Boolean isPaga() {
+        return paga;
+    }
 }

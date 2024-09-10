@@ -1,37 +1,86 @@
 package br.com.hoffmoney_backend.modelo.usuario;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
 // import br.com.hoffmoney_backend.modelo.mensagens.EmailService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
 
-    // @Autowired
-    // private EmailService emailService;
-
+    @Autowired
+    private EmailService emailService;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private TemplateEngine templateEngine;
 
     @Transactional
     public Usuario save(Usuario usuario) {
-
-        usuario.setHabilitado(Boolean.TRUE);
+        usuario.setHabilitado(Boolean.FALSE); // Definir como não habilitado inicialmente
         usuario.setVersao(1L);
         usuario.setDataCriacao(LocalDate.now());
         usuario.setSaldo(0.0);
         usuario.setLimite(0.0);
 
-        // Comentar a linha abaixo quando não quiser mandar e-mail
-        // emailService.enviarEmailConfirmacaoCadastroUsuario(usuario);
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        return usuarioRepository.save(usuario);
+        // Gerar token de ativação
+        String token = gerarTokenAtivacao(usuarioSalvo);
+
+        // Montar o link de ativação
+        String link = "http://localhost:3000/ativar?token=" + token;  // Alterar conforme o URL do frontend
+
+        // Enviar e-mail de ativação
+        enviarEmailAtivacao(usuarioSalvo.getEmail(), usuarioSalvo.getNome(), link);
+
+        return usuarioSalvo;
     }
+    
+    public String gerarTokenAtivacao(Usuario usuario) {
+        String token = UUID.randomUUID().toString();
+        usuario.setAtivacaoToken(token);
+        usuario.setAtivacaoTokenExpiry(LocalDateTime.now().plusHours(24)); // Token válido por 24 horas
+        usuarioRepository.save(usuario);
+        return token;
+    }
+    public void enviarEmailAtivacao(String email, String nome, String link) {
+        Context context = new Context();
+        Usuario usuario = new Usuario();
+        usuario.setNome(nome);
+        context.setVariable("usuario", usuario);
+        context.setVariable("link", link);
+        String content = templateEngine.process("usuario_cadastrado.html", context);
+        emailService.enviarEmail(email, "Ativação de Conta", content);
+    }
+
+    public Usuario validarTokenAtivacao(String token) {
+        Usuario usuario = usuarioRepository.findByAtivacaoToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token inválido ou expirado"));
+
+        if (usuario.getAtivacaoTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token expirado");
+        }
+
+        return usuario;
+    }
+
+    public void ativarConta(Usuario usuario) {
+        usuario.setHabilitado(true);
+        usuario.setAtivacaoToken(null);
+        usuario.setAtivacaoTokenExpiry(null);
+        usuarioRepository.save(usuario);
+    }
+
 
     @Transactional
     public List<Usuario> listarTodos() {
@@ -67,7 +116,6 @@ public class UsuarioService {
 
     public Usuario login(String email, String senha) {
         Usuario usuario = usuarioRepository.findByEmail(email);
-        System.out.println(usuario);
         if (usuario != null && usuario.getSenha().equals(senha)) {
             return usuario;
         }
@@ -105,5 +153,25 @@ public class UsuarioService {
 
         usuario.setLimite(novoLimite);
         usuarioRepository.save(usuario);
+    }
+
+    // Método para gerar o token de recuperação de senha
+    public String gerarTokenRecuperacao(Usuario usuario) {
+        String token = UUID.randomUUID().toString();
+        usuario.setResetToken(token);
+        usuario.setResetTokenExpiry(LocalDateTime.now().plusHours(1)); // Token válido por 1 hora
+        usuarioRepository.save(usuario);
+        return token;
+    }
+
+    // Método para validar o token de recuperação de senha
+    public Usuario validarTokenRecuperacao(String token) {
+        Usuario usuario = usuarioRepository.findByResetToken(token);
+
+        if (usuario == null || usuario.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token inválido ou expirado.");
+        }
+
+        return usuario;
     }
 }

@@ -1,6 +1,7 @@
 package br.com.hoffmoney_backend.modelo.usuario;
 
-import org.hibernate.annotations.SQLRestriction;
+import java.time.LocalDateTime;
+
 
 import br.com.hoffmoney_backend.util.entity.EntidadeAuditavel;
 import jakarta.persistence.*;
@@ -8,7 +9,6 @@ import lombok.*;
 
 @Entity
 @Table(name = "Usuario")
-@SQLRestriction("habilitado = true")
 @Builder
 @Getter
 @Setter
@@ -36,4 +36,15 @@ public class Usuario extends EntidadeAuditavel {
     @Column()
     @Builder.Default
     private Double limite = 0.0;
+
+    // Token de ativação de conta
+    private String ativacaoToken;
+
+    // Data de expiração do token de ativação
+    private LocalDateTime ativacaoTokenExpiry;
+
+    // Token de recuperação de senha
+    private String resetToken;
+    // Data de expiração do token de recuperação
+    private LocalDateTime resetTokenExpiry;
 }

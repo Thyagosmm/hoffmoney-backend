@@ -95,4 +95,33 @@ public class EmailService {
 
         emailSender.send(mensagem);
     }
+
+    @Async
+    public void enviarEmailRedefinicaoSenha(String email, String link) {
+        try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(email);
+            helper.setSubject("Redefinição de Senha");
+            helper.setText("Clique no link para redefinir sua senha: " + link, true);
+
+            emailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+    @Async
+    public void enviarEmail(String email, String assunto, String conteudo) {
+        try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(email);
+            helper.setSubject(assunto);
+            helper.setText(conteudo, true);
+            emailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
 }

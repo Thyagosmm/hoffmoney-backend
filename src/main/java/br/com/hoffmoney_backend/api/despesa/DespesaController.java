@@ -5,13 +5,10 @@ import br.com.hoffmoney_backend.modelo.categoriadespesa.CategoriaDespesaService;
 import br.com.hoffmoney_backend.modelo.despesa.Despesa;
 import br.com.hoffmoney_backend.modelo.despesa.DespesaService;
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,14 +77,11 @@ public class DespesaController {
     }
 
     @PostMapping("/filtrar")
-    public ResponseEntity<List<Despesa>> filtrar(
-            @RequestParam(value = "dataDeCobranca", required = false) LocalDate dataDeCobranca,
-            @RequestParam(value = "valor", required = false) Double valor,
-            @RequestParam(value = "categoria", required = false) Long idCategoriaDespesa,
-            @RequestParam(value = "nome", required = false) String nome,
-            @RequestParam(value = "usuarioId") Long usuarioId) {
-
-        List<Despesa> despesas = despesaService.filtrar(dataDeCobranca, valor, idCategoriaDespesa, nome, usuarioId);
-        return ResponseEntity.ok(despesas);
+    public List<Despesa> filtrarDespesas(@RequestBody FiltroDespesaDTO filtros) {
+        return despesaService.filtrarDespesas(
+                filtros.getNome(),
+                filtros.getValor(),
+                filtros.getDataDeCobranca(),
+                filtros.getIdCategoriaDespesa());
     }
 }
