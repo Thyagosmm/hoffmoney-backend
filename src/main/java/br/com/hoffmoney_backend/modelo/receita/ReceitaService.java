@@ -84,13 +84,14 @@ public class ReceitaService {
         Receita receita = receitaRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
 
-        double valorReceita = receita.getValor();
         receitaRepository.deleteById(id);
 
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        usuario.setSaldo(usuario.getSaldo() - valorReceita);
-        usuarioRepository.save(usuario);
+        if (receita.isPaga()) {
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            usuario.setSaldo(usuario.getSaldo() - receita.getValor());
+            usuarioRepository.save(usuario);
+        }
     }
 
     @Transactional
